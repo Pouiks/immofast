@@ -1,0 +1,18 @@
+# Dépendances / build (au cas où, en plus des .gitignore par sous-dossier)
+**/node_modules/
+**/.next/
+**/out/
+**/build/
+**/coverage/
+**/test-results/
+**/playwright-report/
+
+# Secrets d'environnement — ne JAMAIS committer
+**/.env
+**/.env.*
+!**/.env.local.example
+
+# Divers
+.DS_Store
+*.pem
+*.tsbuildinfo

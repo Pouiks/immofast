@@ -1,0 +1,103 @@
+@import "tailwindcss";
+
+/*
+ * Design tokens Aparté — dérivés du handoff de design.
+ * L'accent (--ac / --ac2) est le seul token *runtime* : il est piloté par
+ * le branding de l'espace client (marque blanche) via <ThemeProvider>.
+ * Tout le reste est statique.
+ */
+@theme inline {
+  --font-sans: var(--font-manrope), system-ui, sans-serif;
+
+  /* Surfaces */
+  --color-app: var(--app);
+  --color-surface: var(--surface);
+  --color-soft: var(--soft);
+  --color-hover: var(--hover);
+  --color-line: var(--line);
+  --color-line-soft: var(--line-soft);
+
+  /* Texte */
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-faint: var(--faint);
+  --color-ghost: var(--ghost);
+
+  /* Accent (marque blanche, runtime) */
+  --color-accent: var(--ac);
+  --color-accent-2: var(--ac2);
+  --color-accent-soft: var(--ac-soft);
+
+  /* Statuts */
+  --color-success: #12a150;
+  --color-success-bg: #e9f7ef;
+  --color-warning: #e07a1c;
+  --color-warning-bg: #fff2e6;
+  --color-danger: #e5484d;
+  --color-danger-bg: #feeceb;
+  --color-neutral: #6b6b7b;
+  --color-neutral-bg: #eef0f3;
+
+  /* Rayons */
+  --radius-card: 16px;
+  --radius-pill: 8px;
+  --radius-field: 10px;
+
+  /* Ombres */
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.06);
+  --shadow-lift: 0 14px 30px -14px rgba(20, 20, 31, 0.25);
+  --shadow-overlay: 0 30px 70px -20px rgba(0, 0, 0, 0.4);
+
+  /* Animations overlays / drawers / modales */
+  --animate-ov-in: ov-in 0.18s ease;
+  --animate-dr-in: dr-in 0.25s ease;
+  --animate-md-in: md-in 0.22s ease;
+}
+
+:root {
+  --app: #f4f4f7;
+  --surface: #ffffff;
+  --soft: #faf9fc;
+  --hover: #faf9fc;
+  --line: #f0eff4;
+  --line-soft: #f6f5f9;
+
+  --ink: #14141f;
+  --muted: #6b6b7b;
+  --faint: #9a9aac;
+  --ghost: #a0a0b0;
+
+  /* Accent par défaut : océan (#2563eb → #38bdf8). Écrasé par le branding. */
+  --ac: #2563eb;
+  --ac2: #38bdf8;
+  --ac-soft: color-mix(in srgb, var(--ac) 13%, transparent);
+}
+
+@keyframes ov-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes dr-in {
+  from { transform: translateX(24px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+@keyframes md-in {
+  from { transform: translateY(14px) scale(0.98); opacity: 0; }
+  to { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+* { box-sizing: border-box; }
+
+body {
+  background: var(--app);
+  color: var(--ink);
+  font-family: var(--font-manrope), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  font-size: 14px;
+}
+
+::-webkit-scrollbar { width: 9px; height: 9px; }
+::-webkit-scrollbar-thumb {
+  background: rgba(20, 20, 31, 0.16);
+  border-radius: 9px;
+}

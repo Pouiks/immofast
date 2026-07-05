@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="./image-slot.js"></script>
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:#f4f4f7;font-family:'Manrope',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+  input,select,button,textarea{font-family:inherit}
+  @keyframes ov-in{from{opacity:0}to{opacity:1}}
+  @keyframes dr-in{from{transform:translateX(24px);opacity:0}to{transform:translateX(0);opacity:1}}
+  @keyframes md-in{from{transform:translateY(14px) scale(.98);opacity:0}to{transform:translateY(0) scale(1);opacity:1}}
+  .navitem:hover{background:#f4f4f7!important}
+  .navitem.on:hover{background:var(--ac,#5b4bff)!important}
+  .rowhover:hover{background:#faf9fc!important}
+  .lift{transition:transform .15s ease,box-shadow .15s ease}
+  .lift:hover{transform:translateY(-3px);box-shadow:0 14px 30px -14px rgba(20,20,31,.25)}
+  .drop-hi{transition:background .12s ease}.drop-hi:hover{background:#faf9ff}
+  .evt{cursor:grab}.evt:active{cursor:grabbing}
+  ::-webkit-scrollbar{width:9px;height:9px}::-webkit-scrollbar-thumb{background:rgba(20,20,31,.16);border-radius:9px}
+</style>
+</helmet>
+
+<div style="{{ rootVars }}">
+<div style="display:flex;height:100vh;overflow:hidden;color:#14141f;font-size:14px">
+
+  <!-- ============ SIDEBAR ============ -->
+  <aside style="width:236px;flex:none;background:#fff;border-right:1px solid rgba(20,20,31,.07);padding:22px 16px;display:flex;flex-direction:column;gap:24px">
+    <div style="display:flex;align-items:center;gap:10px;padding:0 6px">
+      <div style="width:36px;height:36px;border-radius:calc(var(--rad,14px) * .6);background:linear-gradient(135deg,var(--ac,#5b4bff),var(--ac2,#8f6cff));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:18px">{{ brandInitial }}</div>
+      <div><div style="font-weight:800;font-size:16px;letter-spacing:-.3px">{{ brandName }}</div><div style="font-size:10.5px;color:#9a9aac;font-weight:600;letter-spacing:.4px">CRM IMMOBILIER</div></div>
+    </div>
+    <nav style="display:flex;flex-direction:column;gap:4px">
+      <div class="navitem on" style="{{ nDash }}" onClick="{{ goDash }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>Tableau de bord</div>
+      <div class="navitem" style="{{ nProspects }}" onClick="{{ goProspects }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/></svg>Prospects</div>
+      <div class="navitem" style="{{ nBiens }}" onClick="{{ goBiens }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 9h.01M9 13h.01M9 17h.01M15 9h.01M15 13h.01M15 17h.01"/></svg>Biens</div>
+      <div class="navitem" style="{{ nPipeline }}" onClick="{{ goPipeline }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1"><rect x="3" y="4" width="5" height="16" rx="1.4"/><rect x="10" y="4" width="5" height="11" rx="1.4"/><rect x="17" y="4" width="4" height="7" rx="1.4"/></svg>Kanban</div>
+      <div class="navitem" style="{{ nAgenda }}" onClick="{{ goAgenda }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1"><rect x="3" y="4" width="18" height="18" rx="2.5"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>Agenda</div>
+    </nav>
+    <div style="margin-top:auto;background:#f4f4f7;border-radius:var(--rad,14px);padding:15px;text-align:center;cursor:pointer" onClick="{{ openObjectif }}">
+      <div style="display:flex;align-items:center;justify-content:center;gap:6px;font-size:12px;font-weight:700;margin-bottom:3px">Objectif mensuel <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#9a9aac" stroke-width="2.4"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></div>
+      <div style="font-size:11px;color:#9a9aac;font-weight:600;margin-bottom:10px">{{ goalLabel }}</div>
+      <div style="height:7px;border-radius:5px;background:#e4e3ea;overflow:hidden"><div style="width:{{ goalPct }};height:100%;background:linear-gradient(90deg,var(--ac,#5b4bff),var(--ac2,#8f6cff));border-radius:5px"></div></div>
+    </div>
+    <div class="rowhover" style="display:flex;align-items:center;gap:10px;padding:10px 6px;margin:0 -6px;border-top:1px solid #f0eff4;border-radius:10px;cursor:pointer" onClick="{{ openAccount }}">
+      <div style="width:36px;height:36px;border-radius:11px;background:linear-gradient(135deg,#ff8a5b,#ff5b8a);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800">CM</div>
+      <div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:700">Camille Mercier</div><div style="font-size:11px;color:#9a9aac;font-weight:600">{{ roleLabel }}</div></div>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#c4c4d0" stroke-width="2.2"><path d="M9 6l6 6-6 6"/></svg>
+    </div>
+  </aside>
+
+  <!-- ============ MAIN ============ -->
+  <div style="flex:1;display:flex;flex-direction:column;min-width:0">
+    <header style="flex:none;height:70px;background:#fff;border-bottom:1px solid rgba(20,20,31,.07);display:flex;align-items:center;justify-content:space-between;padding:0 28px">
+      <div style="font-size:19px;font-weight:800;letter-spacing:-.4px">{{ screenTitle }}</div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <div style="display:flex;align-items:center;gap:8px;background:#f4f4f7;border-radius:11px;padding:9px 13px;color:#9a9aac;font-weight:600;width:240px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg><input value="{{ searchValue }}" onChange="{{ onSearch }}" placeholder="{{ searchPlaceholder }}" style="border:none;background:none;outline:none;font-size:13px;font-weight:600;color:#14141f;width:100%"></div>
+        <div style="position:relative">
+          <div style="width:40px;height:40px;border-radius:11px;background:#f4f4f7;display:flex;align-items:center;justify-content:center;position:relative;cursor:pointer" onClick="{{ toggleNotif }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6b6b7b" stroke-width="2.1"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg><sc-if value="{{ hasUnread }}" hint-placeholder-val="{{ true }}"><span style="position:absolute;top:-3px;right:-3px;min-width:16px;height:16px;padding:0 4px;background:#e5484d;color:#fff;font-size:9.5px;font-weight:800;border-radius:9px;display:flex;align-items:center;justify-content:center;border:2px solid #fff">{{ notifUnread }}</span></sc-if></div>
+          <sc-if value="{{ notifOpen }}" hint-placeholder-val="{{ false }}">
+          <div style="position:fixed;inset:0;z-index:55" onClick="{{ toggleNotif }}"></div>
+          <div style="position:absolute;top:50px;right:0;width:344px;background:#fff;border:1px solid rgba(20,20,31,.08);border-radius:16px;box-shadow:0 20px 50px -18px rgba(0,0,0,.3);z-index:60;overflow:hidden">
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:15px 16px;border-bottom:1px solid #f0eff4"><div style="font-size:14px;font-weight:800">Notifications</div><div style="font-size:11.5px;font-weight:700;color:var(--ac,#5b4bff);cursor:pointer" onClick="{{ markAllRead }}">Tout marquer lu</div></div>
+            <div style="max-height:344px;overflow-y:auto">
+              <sc-for list="{{ notifs }}" as="n" hint-placeholder-count="3">
+                <div style="display:flex;gap:11px;padding:13px 16px;border-bottom:1px solid #f6f5f9"><span style="{{ n.dotStyle }}"></span><div style="flex:1;min-width:0"><div style="font-size:12.5px;font-weight:700">{{ n.title }}</div><div style="font-size:11.5px;color:#6b6b7b;font-weight:500;margin-top:2px">{{ n.text }}</div><div style="font-size:10.5px;color:#a0a0b0;font-weight:600;margin-top:4px">{{ n.time }}</div></div></div>
+              </sc-for>
+            </div>
+          </div>
+          </sc-if>
+        </div>
+        <button style="border:none;cursor:pointer;display:flex;align-items:center;gap:7px;background:var(--ac,#5b4bff);color:#fff;font-weight:700;font-size:13px;padding:11px 16px;border-radius:11px" onClick="{{ onCreate }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M12 5v14M5 12h14"/></svg>{{ createLabel }}</button>
+      </div>
+    </header>
+
+    <div style="flex:1;overflow-y:auto;padding:26px 28px">
+
+      <!-- ===== DASHBOARD ===== -->
+      <sc-if value="{{ isDash }}" hint-placeholder-val="{{ true }}">
+      <div style="display:flex;flex-direction:column;gap:var(--gap,18px)">
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:var(--gap,18px)">
+          <div style="background:#fff;border-radius:var(--rad,16px);padding:18px;border:1px solid rgba(20,20,31,.05)"><div style="font-size:12px;color:#8a8a9a;font-weight:700">Mandats actifs</div><div style="font-size:30px;font-weight:800;letter-spacing:-1px;margin-top:8px">{{ countBiens }}</div><div style="font-size:11.5px;font-weight:700;color:#12a150;margin-top:4px">▲ 2 ce mois</div></div>
+          <div style="background:#fff;border-radius:var(--rad,16px);padding:18px;border:1px solid rgba(20,20,31,.05)"><div style="font-size:12px;color:#8a8a9a;font-weight:700">Nouveaux prospects</div><div style="font-size:30px;font-weight:800;letter-spacing:-1px;margin-top:8px">{{ countProspects }}</div><div style="font-size:11.5px;font-weight:700;color:#12a150;margin-top:4px">▲ cette semaine</div></div>
+          <div style="background:#fff;border-radius:var(--rad,16px);padding:18px;border:1px solid rgba(20,20,31,.05)"><div style="font-size:12px;color:#8a8a9a;font-weight:700">Visites planifiées</div><div style="font-size:30px;font-weight:800;letter-spacing:-1px;margin-top:8px">{{ countVisites }}</div><div style="font-size:11.5px;font-weight:700;color:#8a8a9a;margin-top:4px">cette semaine</div></div>
+          <div style="background:linear-gradient(135deg,var(--ac,#5b4bff),var(--ac2,#8f6cff));border-radius:var(--rad,16px);padding:18px;color:#fff"><div style="font-size:12px;opacity:.85;font-weight:700">Pipeline prévisionnel</div><div style="font-size:30px;font-weight:800;letter-spacing:-1px;margin-top:8px">1,84 M€</div><div style="font-size:11.5px;font-weight:700;opacity:.9;margin-top:4px">▲ 320 k€ vs. mois‑1</div></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1.4fr 1fr;gap:var(--gap,18px)">
+          <div style="background:#fff;border-radius:var(--rad,16px);padding:20px;border:1px solid rgba(20,20,31,.05)">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><div style="font-size:15px;font-weight:800">Kanban des affaires</div><div style="font-size:12px;color:var(--ac,#5b4bff);font-weight:700;cursor:pointer" onClick="{{ goPipeline }}">Voir tout →</div></div>
+            <div style="display:flex;flex-direction:column;gap:9px">
+              <div style="display:flex;align-items:center;gap:12px"><div style="width:78px;font-size:12px;font-weight:700;color:#6b6b7b">Prospects</div><div style="flex:1;height:26px;border-radius:7px;background:var(--ac,#5b4bff);display:flex;align-items:center;padding-left:12px;color:#fff;font-weight:700;font-size:12px">18</div></div>
+              <div style="display:flex;align-items:center;gap:12px"><div style="width:78px;font-size:12px;font-weight:700;color:#6b6b7b">Qualifiés</div><div style="width:78%;height:26px;border-radius:7px;background:var(--ac2,#8f6cff);display:flex;align-items:center;padding-left:12px;color:#fff;font-weight:700;font-size:12px">11</div></div>
+              <div style="display:flex;align-items:center;gap:12px"><div style="width:78px;font-size:12px;font-weight:700;color:#6b6b7b">Visites</div><div style="width:55%;height:26px;border-radius:7px;background:var(--ac2,#8f6cff);opacity:.7;display:flex;align-items:center;padding-left:12px;color:#fff;font-weight:700;font-size:12px">7</div></div>
+              <div style="display:flex;align-items:center;gap:12px"><div style="width:78px;font-size:12px;font-weight:700;color:#6b6b7b">Offres</div><div style="width:32%;height:26px;border-radius:7px;background:var(--ac2,#8f6cff);opacity:.45;display:flex;align-items:center;padding-left:12px;color:#fff;font-weight:700;font-size:12px">4</div></div>
+              <div style="display:flex;align-items:center;gap:12px"><div style="width:78px;font-size:12px;font-weight:700;color:#6b6b7b">Compromis</div><div style="width:18%;height:26px;border-radius:7px;background:#12a150;display:flex;align-items:center;padding-left:12px;color:#fff;font-weight:700;font-size:12px">2</div></div>
+            </div>
+          </div>
+          <div style="background:#fff;border-radius:var(--rad,16px);padding:20px;border:1px solid rgba(20,20,31,.05)">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px"><div style="font-size:15px;font-weight:800">Visites à venir</div><div style="font-size:12px;color:var(--ac,#5b4bff);font-weight:700;cursor:pointer" onClick="{{ goAgenda }}">Agenda →</div></div>
+            <div style="display:flex;flex-direction:column;gap:12px">
+              <sc-for list="{{ dashVisites }}" as="v" hint-placeholder-count="3">
+                <div style="display:flex;gap:12px"><div style="text-align:center;flex:none"><div style="font-size:15px;font-weight:800;color:var(--ac,#5b4bff)">{{ v.time }}</div><div style="font-size:10px;color:#9a9aac;font-weight:700">{{ v.day }}</div></div><div style="flex:1;padding-left:12px;border-left:2px solid #eceaf6"><div style="font-size:13px;font-weight:700">{{ v.title }}</div><div style="font-size:11.5px;color:#8a8a9a;font-weight:600">avec {{ v.prospectName }}</div></div></div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+      </div>
+      </sc-if>
+
+      <!-- ===== PROSPECTS ===== -->
+      <sc-if value="{{ isProspects }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;gap:10px;align-items:center;margin-bottom:16px;flex-wrap:wrap">
+        <select value="{{ pFilter }}" onChange="{{ onPFilter }}" style="border:1px solid #e4e3ea;border-radius:10px;padding:9px 12px;font-size:12.5px;font-weight:700;color:#3a3a48;background:#fff;cursor:pointer"><option value="Tous">Tous les statuts</option><option>Nouveau</option><option>Qualifié</option><option>Visite</option><option>Offre</option><option>Compromis</option></select>
+        <select value="{{ pSort }}" onChange="{{ onPSort }}" style="border:1px solid #e4e3ea;border-radius:10px;padding:9px 12px;font-size:12.5px;font-weight:700;color:#3a3a48;background:#fff;cursor:pointer"><option value="recent">Tri : plus récents</option><option value="nom">Tri : nom (A→Z)</option><option value="budget-desc">Tri : budget décroissant</option><option value="budget-asc">Tri : budget croissant</option></select>
+        <div style="margin-left:auto;font-size:12px;color:#9a9aac;font-weight:700">{{ pCount }} résultat(s)</div>
+      </div>
+      <div style="background:#fff;border-radius:var(--rad,16px);padding:6px 20px 12px;border:1px solid rgba(20,20,31,.05)">
+        <div style="display:grid;grid-template-columns:2.2fr 1.6fr 1fr 1.1fr 40px;gap:12px;font-size:11px;color:#a0a0b0;font-weight:700;text-transform:uppercase;letter-spacing:.5px;padding:16px 0 12px;border-bottom:1px solid #f0eff4"><div>Prospect</div><div>Recherche</div><div>Budget</div><div>Statut</div><div></div></div>
+        <sc-for list="{{ prospectRows }}" as="p" hint-placeholder-count="6">
+          <div class="rowhover" style="display:grid;grid-template-columns:2.2fr 1.6fr 1fr 1.1fr 40px;gap:12px;align-items:center;padding:13px 8px;margin:0 -8px;border-bottom:1px solid #f6f5f9;cursor:pointer;border-radius:10px" onClick="{{ p.onClick }}">
+            <div style="display:flex;align-items:center;gap:11px"><div style="width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;background:{{ p.avatarBg }};color:{{ p.avatarFg }}">{{ p.initials }}</div><div><div style="font-weight:700;font-size:13.5px">{{ p.name }}</div><div style="font-size:11px;color:#a0a0b0;font-weight:600">{{ p.contact }}</div></div></div>
+            <div style="font-size:12.5px;color:#6b6b7b;font-weight:600">{{ p.search }}</div>
+            <div style="font-size:13.5px;font-weight:800">{{ p.budget }}</div>
+            <div><span style="font-size:11px;font-weight:700;padding:4px 10px;border-radius:6px;background:{{ p.badgeBg }};color:{{ p.badgeFg }}">{{ p.stage }}</span></div>
+            <div style="color:#c4c4d0;display:flex;justify-content:flex-end"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m9 18 6-6-6-6"/></svg></div>
+          </div>
+        </sc-for>
+        <sc-if value="{{ pEmpty }}" hint-placeholder-val="{{ false }}"><div style="padding:34px;text-align:center;color:#9a9aac;font-weight:600;font-size:13px">Aucun prospect ne correspond à votre recherche.</div></sc-if>
+      </div>
+      </sc-if>
+
+      <!-- ===== BIENS ===== -->
+      <sc-if value="{{ isBiens }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;gap:10px;align-items:center;margin-bottom:16px;flex-wrap:wrap">
+        <select value="{{ bFilter }}" onChange="{{ onBFilter }}" style="border:1px solid #e4e3ea;border-radius:10px;padding:9px 12px;font-size:12.5px;font-weight:700;color:#3a3a48;background:#fff;cursor:pointer"><option value="Tous">Tous les statuts</option><option>Disponible</option><option>Sous offre</option><option>Vendu</option></select>
+        <select value="{{ bPub }}" onChange="{{ onBPub }}" style="border:1px solid #e4e3ea;border-radius:10px;padding:9px 12px;font-size:12.5px;font-weight:700;color:#3a3a48;background:#fff;cursor:pointer"><option value="Toutes">Publication : toutes</option><option value="En ligne">En ligne</option><option value="Brouillon">Brouillon</option></select>
+        <select value="{{ bSort }}" onChange="{{ onBSort }}" style="border:1px solid #e4e3ea;border-radius:10px;padding:9px 12px;font-size:12.5px;font-weight:700;color:#3a3a48;background:#fff;cursor:pointer"><option value="recent">Tri : plus récents</option><option value="prix-desc">Tri : prix décroissant</option><option value="prix-asc">Tri : prix croissant</option></select>
+        <div style="margin-left:auto;font-size:12px;color:#9a9aac;font-weight:700">{{ bCount }} résultat(s)</div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:var(--gap,18px)">
+        <sc-for list="{{ bienCards }}" as="b" hint-placeholder-count="6">
+          <div class="lift" style="background:#fff;border-radius:var(--rad,16px);border:1px solid rgba(20,20,31,.05);overflow:hidden;cursor:pointer" onClick="{{ b.onClick }}">
+            <div style="height:150px;background:{{ b.thumb }};position:relative;display:flex;align-items:flex-end;padding:12px">
+              <span style="font-size:10.5px;font-weight:800;background:rgba(255,255,255,.92);color:#14141f;padding:4px 9px;border-radius:6px">{{ b.ref }}</span>
+              <span style="position:absolute;top:12px;right:12px;font-size:10.5px;font-weight:700;padding:4px 10px;border-radius:6px;background:{{ b.statusBg }};color:{{ b.statusFg }}">{{ b.status }}</span>
+              <span style="position:absolute;top:12px;left:12px;display:flex;align-items:center;gap:5px;font-size:10px;font-weight:700;background:rgba(255,255,255,.92);padding:4px 8px;border-radius:6px;color:{{ b.pubColor }}"><span style="width:7px;height:7px;border-radius:50%;background:{{ b.pubColor }}"></span>{{ b.pubShort }}</span>
+            </div>
+            <div style="padding:15px 16px 17px">
+              <div style="font-size:15px;font-weight:800;letter-spacing:-.3px">{{ b.price }}</div>
+              <div style="font-size:13px;font-weight:700;margin-top:4px">{{ b.title }}</div>
+              <div style="font-size:12px;color:#8a8a9a;font-weight:600;margin-top:2px">{{ b.city }}</div>
+              <div style="display:flex;gap:14px;margin-top:12px;padding-top:12px;border-top:1px solid #f4f3f7;font-size:11.5px;color:#6b6b7b;font-weight:700">
+                <span>{{ b.rooms }}</span><span>{{ b.surface }}</span><span>{{ b.bedrooms }}</span>
+              </div>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+      <sc-if value="{{ bEmpty }}" hint-placeholder-val="{{ false }}"><div style="padding:40px;text-align:center;color:#9a9aac;font-weight:600;font-size:13px">Aucun bien ne correspond à votre recherche.</div></sc-if>
+      </sc-if>
+
+      <!-- ===== KANBAN ===== -->
+      <sc-if value="{{ isPipeline }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;gap:14px;align-items:flex-start;overflow-x:auto;padding-bottom:8px">
+        <sc-for list="{{ pipelineCols }}" as="col" hint-placeholder-count="5">
+          <div class="drop-hi" style="flex:none;width:238px;background:#efeef3;border-radius:var(--rad,16px);padding:12px" onDragOver="{{ col.onDragOver }}" onDrop="{{ col.onDrop }}">
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:4px 8px 12px"><div style="font-size:13px;font-weight:800">{{ col.name }}</div><div style="font-size:11px;font-weight:800;color:#8a8a9a;background:#fff;border-radius:20px;padding:2px 9px">{{ col.count }}</div></div>
+            <div style="display:flex;flex-direction:column;gap:9px;min-height:40px">
+              <sc-for list="{{ col.items }}" as="c" hint-placeholder-count="2">
+                <div class="lift evt" draggable="true" style="background:#fff;border-radius:12px;padding:13px;cursor:pointer;border:1px solid rgba(20,20,31,.04)" onClick="{{ c.onClick }}" onDragStart="{{ c.onDragStart }}">
+                  <div style="display:flex;align-items:center;gap:9px"><div style="width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:11px;background:{{ c.avatarBg }};color:{{ c.avatarFg }}">{{ c.initials }}</div><div style="font-size:12.5px;font-weight:700">{{ c.name }}</div></div>
+                  <div style="font-size:11.5px;color:#8a8a9a;font-weight:600;margin-top:8px">{{ c.search }}</div>
+                  <div style="font-size:13px;font-weight:800;margin-top:6px;color:var(--ac,#5b4bff)">{{ c.budget }}</div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+      </sc-if>
+
+      <!-- ===== AGENDA ===== -->
+      <sc-if value="{{ isAgenda }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+        <div style="display:flex;background:#fff;border:1px solid #eceaf0;border-radius:11px;padding:4px;gap:3px">
+          <div style="{{ segWeek }}" onClick="{{ setViewWeek }}">Semaine</div>
+          <div style="{{ segMonth }}" onClick="{{ setViewMonth }}">Mois</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="font-size:13px;font-weight:800">{{ agendaHead }}</div>
+          <div style="{{ gcalStyle }}" onClick="{{ toggleGcal }}">
+            <svg width="16" height="16" viewBox="0 0 48 48"><path fill="#4285F4" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.6 2.4 30.2 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.9 6.2C12.3 13.6 17.6 9.5 24 9.5z"/><path fill="#34A853" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.9 7.2l7.6 5.9C43.9 38.1 46.5 31.9 46.5 24.5z"/><path fill="#FBBC05" d="M10.5 28.6c-.5-1.5-.8-3-.8-4.6s.3-3.1.8-4.6l-7.9-6.2C1 16.5 0 20.1 0 24s1 7.5 2.6 10.8l7.9-6.2z"/><path fill="#EA4335" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.6-5.9c-2.1 1.4-4.8 2.3-8.3 2.3-6.4 0-11.7-4.1-13.6-9.9l-7.9 6.2C6.5 42.6 14.6 48 24 48z"/></svg>
+            {{ gcalLabel }}
+          </div>
+        </div>
+      </div>
+
+      <sc-if value="{{ isWeek }}" hint-placeholder-val="{{ true }}">
+      <div style="background:#fff;border-radius:var(--rad,16px);border:1px solid rgba(20,20,31,.05);padding:16px;overflow:auto;max-height:calc(100vh - 190px)">
+        <div style="display:grid;grid-template-columns:56px repeat(5,1fr);min-width:760px">
+          <div style="border-bottom:1px solid #f0eff4"></div>
+          <sc-for list="{{ weekHead }}" as="h" hint-placeholder-count="5">
+            <div style="text-align:center;padding-bottom:10px;border-bottom:1px solid #f0eff4"><div style="font-size:11px;font-weight:700;color:#a0a0b0;text-transform:uppercase;letter-spacing:.5px">{{ h.label }}</div><div style="font-size:18px;font-weight:800;margin-top:2px">{{ h.date }}</div></div>
+          </sc-for>
+          <sc-for list="{{ weekGrid }}" as="row" hint-placeholder-count="13">
+            <div style="font-size:11px;color:#a0a0b0;font-weight:700;text-align:right;padding:6px 8px 0;border-top:1px solid #f4f3f7">{{ row.label }}</div>
+            <sc-for list="{{ row.cells }}" as="cell" hint-placeholder-count="5">
+              <div class="drop-hi" style="border-top:1px solid #f4f3f7;border-left:1px solid #f7f6fa;min-height:46px;padding:3px" onDragOver="{{ cell.onDragOver }}" onDrop="{{ cell.onDrop }}">
+                <sc-for list="{{ cell.events }}" as="e" hint-placeholder-count="0">
+                  <div class="evt" draggable="true" style="background:var(--acSoft,#eef2ff);border-left:3px solid var(--ac,#5b4bff);border-radius:7px;padding:5px 7px;margin-bottom:3px" onClick="{{ e.onClick }}" onDragStart="{{ e.onDragStart }}">
+                    <div style="font-size:10.5px;font-weight:800;color:var(--ac,#5b4bff)">{{ e.time }}</div>
+                    <div style="font-size:11px;font-weight:700;line-height:1.2">{{ e.title }}</div>
+                    <div style="font-size:10px;color:#8a8a9a;font-weight:600">{{ e.who }}</div>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-for>
+          </sc-for>
+        </div>
+      </div>
+      </sc-if>
+
+      <sc-if value="{{ isMonth }}" hint-placeholder-val="{{ false }}">
+      <div style="background:#fff;border-radius:var(--rad,16px);border:1px solid rgba(20,20,31,.05);padding:18px">
+        <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:8px">
+          <div style="text-align:center;font-size:11px;font-weight:700;color:#a0a0b0;text-transform:uppercase;letter-spacing:.5px">Lun</div><div style="text-align:center;font-size:11px;font-weight:700;color:#a0a0b0;text-transform:uppercase;letter-spacing:.5px">Mar</div><div style="text-align:center;font-size:11px;font-weight:700;color:#a0a0b0;text-transform:uppercase;letter-spacing:.5px">Mer</div><div style="text-align:center;font-size:11px;font-weight:700;color:#a0a0b0;text-transform:uppercase;letter-spacing:.5px">Jeu</div><div style="text-align:center;font-size:11px;font-weight:700;color:#a0a0b0;text-transform:uppercase;letter-spacing:.5px">Ven</div><div style="text-align:center;font-size:11px;font-weight:700;color:#a0a0b0;text-transform:uppercase;letter-spacing:.5px">Sam</div><div style="text-align:center;font-size:11px;font-weight:700;color:#a0a0b0;text-transform:uppercase;letter-spacing:.5px">Dim</div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px">
+          <sc-for list="{{ monthCells }}" as="c" hint-placeholder-count="35">
+            <sc-if value="{{ c.isDay }}" hint-placeholder-val="{{ true }}">
+              <div class="drop-hi" style="min-height:96px;border:1px solid #f2f1f6;border-radius:10px;padding:6px" onDragOver="{{ c.onDragOver }}" onDrop="{{ c.onDrop }}">
+                <div style="font-size:12px;font-weight:800;color:#6b6b7b;margin-bottom:4px">{{ c.date }}</div>
+                <sc-for list="{{ c.events }}" as="e" hint-placeholder-count="0">
+                  <div class="evt" draggable="true" style="background:var(--acSoft,#eef2ff);border-radius:6px;padding:3px 6px;margin-bottom:3px;font-size:10px;font-weight:700;color:var(--ac,#5b4bff);white-space:nowrap;overflow:hidden;text-overflow:ellipsis" onClick="{{ e.onClick }}" onDragStart="{{ e.onDragStart }}">{{ e.label }}</div>
+                </sc-for>
+              </div>
+            </sc-if>
+            <sc-if value="{{ c.isBlank }}" hint-placeholder-val="{{ false }}"><div></div></sc-if>
+          </sc-for>
+        </div>
+      </div>
+      </sc-if>
+      </sc-if>
+
+    </div>
+  </div>
+
+  <!-- ============ DRAWER PROSPECT ============ -->
+  <sc-if value="{{ selectedOpen }}" hint-placeholder-val="{{ false }}">
+  <div style="position:fixed;inset:0;z-index:40">
+    <div style="position:absolute;inset:0;background:rgba(20,20,31,.35);animation:ov-in .2s ease" onClick="{{ closeDrawer }}"></div>
+    <div style="position:absolute;top:0;right:0;bottom:0;width:420px;background:#fff;box-shadow:-20px 0 50px -20px rgba(0,0,0,.3);animation:dr-in .25s ease;display:flex;flex-direction:column">
+      <div style="padding:22px 24px;border-bottom:1px solid #f0eff4;display:flex;align-items:flex-start;justify-content:space-between">
+        <div style="display:flex;align-items:center;gap:13px"><div style="width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:17px;background:{{ selAvatarBg }};color:{{ selAvatarFg }}">{{ selInitials }}</div><div style="min-width:0"><div style="font-size:18px;font-weight:800;letter-spacing:-.3px;white-space:nowrap;line-height:1.2">{{ selName }}</div><div style="font-size:12px;color:#8a8a9a;font-weight:600;margin-top:2px">{{ selBudget }} · {{ selSearch }}</div></div></div>
+        <div style="display:flex;gap:8px">
+          <div style="width:32px;height:32px;border-radius:9px;background:#f4f4f7;display:flex;align-items:center;justify-content:center;cursor:pointer" onClick="{{ editProspect }}" title="Modifier"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6b6b7b" stroke-width="2.2"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></div>
+          <div style="width:32px;height:32px;border-radius:9px;background:#f4f4f7;display:flex;align-items:center;justify-content:center;cursor:pointer" onClick="{{ closeDrawer }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6b6b7b" stroke-width="2.4"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+        </div>
+      </div>
+      <div style="flex:1;overflow-y:auto;padding:22px 24px;display:flex;flex-direction:column;gap:22px">
+        <div>
+          <div style="font-size:11px;color:#a0a0b0;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">Statut · cliquez pour changer</div>
+          <div style="display:flex;flex-wrap:wrap;gap:7px">
+            <sc-for list="{{ selStages }}" as="s" hint-placeholder-count="5">
+              <div style="{{ s.style }}" onClick="{{ s.onClick }}">{{ s.label }}</div>
+            </sc-for>
+          </div>
+        </div>
+        <div>
+          <div style="font-size:11px;color:#a0a0b0;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">Coordonnées</div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <div style="display:flex;align-items:center;gap:11px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9a9aac" stroke-width="2.1"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3-8.6A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2Z"/></svg><span style="font-size:13.5px;font-weight:600">{{ selPhone }}</span></div>
+            <div style="display:flex;align-items:center;gap:11px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9a9aac" stroke-width="2.1"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 6 10 7 10-7"/></svg><span style="font-size:13.5px;font-weight:600">{{ selEmail }}</span></div>
+            <div style="display:flex;align-items:center;gap:11px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9a9aac" stroke-width="2.1"><path d="M21 10c0 6-9 12-9 12s-9-6-9-12a9 9 0 0 1 18 0Z"/><circle cx="12" cy="10" r="3"/></svg><span style="font-size:13.5px;font-weight:600">{{ selAddress }}</span></div>
+          </div>
+        </div>
+        <div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><div style="font-size:11px;color:#a0a0b0;font-weight:700;text-transform:uppercase;letter-spacing:.5px">Visites liées</div><div style="font-size:12px;font-weight:700;color:var(--ac,#5b4bff);cursor:pointer" onClick="{{ planVisite }}">+ Planifier</div></div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <sc-for list="{{ selVisites }}" as="v" hint-placeholder-count="1">
+              <div style="display:flex;gap:11px;align-items:center;justify-content:space-between;background:#f4f4f7;border-radius:11px;padding:11px 13px;cursor:pointer" onClick="{{ v.onClick }}"><div style="display:flex;gap:11px;align-items:center"><div style="text-align:center"><div style="font-size:13px;font-weight:800;color:var(--ac,#5b4bff)">{{ v.time }}</div><div style="font-size:10px;color:#9a9aac;font-weight:700">{{ v.day }} {{ v.date }}</div></div><div style="font-size:12.5px;font-weight:700">{{ v.title }}</div></div><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#c4c4d0" stroke-width="2.2"><path d="m9 18 6-6-6-6"/></svg></div>
+            </sc-for>
+            <sc-if value="{{ selNoVisite }}" hint-placeholder-val="{{ false }}"><div style="font-size:12.5px;color:#9a9aac;font-weight:600;font-style:italic;padding:4px 0">Aucune visite planifiée.</div></sc-if>
+          </div>
+        </div>
+        <div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><div style="font-size:11px;color:#a0a0b0;font-weight:700;text-transform:uppercase;letter-spacing:.5px">Documents (GED)</div><div style="font-size:12px;font-weight:700;color:var(--ac,#5b4bff);cursor:pointer" onClick="{{ addDoc }}">+ Ajouter</div></div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <sc-for list="{{ selDocs }}" as="d" hint-placeholder-count="1">
+              <div style="display:flex;align-items:center;gap:11px;background:#f4f4f7;border-radius:11px;padding:10px 12px">
+                <div style="width:34px;height:34px;border-radius:9px;background:#fff;display:flex;align-items:center;justify-content:center;flex:none"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#8a8a9a" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg></div>
+                <div style="flex:1;min-width:0"><div style="font-size:12.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ d.name }}</div><div style="display:flex;align-items:center;gap:7px;margin-top:3px"><span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:5px;background:{{ d.typeBg }};color:{{ d.typeFg }}">{{ d.type }}</span><span style="font-size:10.5px;color:#a0a0b0;font-weight:600">{{ d.date }}</span></div></div>
+                <div style="width:26px;height:26px;border-radius:7px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex:none" onClick="{{ d.onDelete }}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#c4667a" stroke-width="2.2"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></div>
+              </div>
+            </sc-for>
+            <sc-if value="{{ selNoDocs }}" hint-placeholder-val="{{ false }}"><div style="font-size:12.5px;color:#9a9aac;font-weight:600;font-style:italic;padding:4px 0">Aucun document. Cliquez sur « Ajouter » pour déposer une pièce.</div></sc-if>
+          </div>
+        </div>
+        <div>
+          <div style="font-size:11px;color:#a0a0b0;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">Offres / contractualisation</div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <sc-for list="{{ selOffres }}" as="o" hint-placeholder-count="0">
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;background:#f4f4f7;border-radius:11px;padding:11px 13px;cursor:pointer" onClick="{{ o.onClick }}"><div><div style="font-size:12.5px;font-weight:700">{{ o.title }}</div><div style="font-size:11px;color:#8a8a9a;font-weight:600">{{ o.price }}</div></div><span style="font-size:10.5px;font-weight:700;padding:4px 9px;border-radius:6px;background:var(--acSoft,#eef2ff);color:var(--ac,#5b4bff)">{{ o.step }}</span></div>
+            </sc-for>
+            <sc-if value="{{ selNoOffre }}" hint-placeholder-val="{{ false }}"><div style="font-size:12.5px;color:#9a9aac;font-weight:600;font-style:italic;padding:4px 0">Aucune offre en cours pour ce prospect.</div></sc-if>
+          </div>
+        </div>
+      </div>
+      <div style="padding:16px 24px;border-top:1px solid #f0eff4;display:flex;gap:10px">
+        <button style="flex:1;border:1px solid #e4e3ea;background:#fff;color:#14141f;font-weight:700;font-size:13px;padding:12px;border-radius:11px;cursor:pointer" onClick="{{ editProspect }}">Modifier la fiche</button>
+        <button style="flex:none;border:none;background:var(--ac,#5b4bff);color:#fff;font-weight:700;font-size:13px;padding:12px 18px;border-radius:11px;cursor:pointer" onClick="{{ planVisite }}">Planifier</button>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- ============ DRAWER BIEN ============ -->
+  <sc-if value="{{ selectedBienOpen }}" hint-placeholder-val="{{ false }}">
+  <div style="position:fixed;inset:0;z-index:41">
+    <div style="position:absolute;inset:0;background:rgba(20,20,31,.35);animation:ov-in .2s ease" onClick="{{ closeBien }}"></div>
+    <div style="position:absolute;top:0;right:0;bottom:0;width:560px;background:#fff;box-shadow:-20px 0 50px -20px rgba(0,0,0,.3);animation:dr-in .25s ease;display:flex;flex-direction:column">
+      <div style="padding:20px 24px;border-bottom:1px solid #f0eff4;display:flex;align-items:flex-start;justify-content:space-between">
+        <div style="min-width:0"><div style="font-size:12px;font-weight:800;color:var(--ac,#5b4bff)">{{ selBRef }}</div><div style="font-size:19px;font-weight:800;letter-spacing:-.3px;margin-top:2px">{{ selBTitle }}</div><div style="font-size:12.5px;color:#8a8a9a;font-weight:600">{{ selBCity }}</div></div>
+        <div style="width:32px;height:32px;border-radius:9px;background:#f4f4f7;display:flex;align-items:center;justify-content:center;cursor:pointer" onClick="{{ closeBien }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6b6b7b" stroke-width="2.4"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+      </div>
+      <div style="flex:1;overflow-y:auto;padding:20px 24px;display:flex;flex-direction:column;gap:20px">
+        <div style="display:grid;grid-template-columns:2fr 1fr;grid-template-rows:repeat(2,1fr);gap:8px;height:230px">
+          <image-slot id="{{ selPhoto1 }}" style="width:100%;height:100%;grid-row:span 2" shape="rounded" radius="14" placeholder="Photo principale"></image-slot>
+          <image-slot id="{{ selPhoto2 }}" style="width:100%;height:100%" shape="rounded" radius="14" placeholder="Photo"></image-slot>
+          <image-slot id="{{ selPhoto3 }}" style="width:100%;height:100%" shape="rounded" radius="14" placeholder="Photo"></image-slot>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <div><div style="font-size:24px;font-weight:800;letter-spacing:-.5px">{{ selBPrice }}</div><span style="font-size:11px;font-weight:700;padding:4px 10px;border-radius:6px;background:{{ selBStatusBg }};color:{{ selBStatusFg }}">{{ selBStatus }}</span></div>
+          <div style="{{ selBPubStyle }}" onClick="{{ togglePub }}"><span style="width:8px;height:8px;border-radius:50%;background:currentColor"></span>{{ selBPublishLabel }}</div>
+        </div>
+        <div>
+          <div style="font-size:11px;color:#a0a0b0;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">Statut du bien · cliquez pour changer</div>
+          <div style="display:flex;gap:7px">
+            <sc-for list="{{ selBStatusChips }}" as="s" hint-placeholder-count="3"><div style="{{ s.style }}" onClick="{{ s.onClick }}">{{ s.label }}</div></sc-for>
+          </div>
+        </div>
+        <div>
+          <div style="font-size:11px;color:#a0a0b0;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">Parcours de contractualisation</div>
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <sc-for list="{{ selBSteps }}" as="s" hint-placeholder-count="4"><div style="{{ s.style }}" onClick="{{ s.onClick }}"><span style="{{ s.dotStyle }}">{{ s.num }}</span>{{ s.label }}</div></sc-for>
+          </div>
+          <div style="margin-top:12px">
+            <div style="font-size:11px;color:#a0a0b0;font-weight:700;margin-bottom:6px">Offre liée à un prospect</div>
+            <select value="{{ selBOfferId }}" onChange="{{ onLinkOffer }}" style="width:100%;border:1px solid #e4e3ea;border-radius:10px;padding:10px 12px;font-size:13px;font-weight:600;background:#fff"><option value="">Aucun prospect lié</option><sc-for list="{{ prospectOptions }}" as="o" hint-placeholder-count="3"><option value="{{ o.id }}">{{ o.name }}</option></sc-for></select>
+          </div>
+        </div>
+        <div>
+          <div style="font-size:11px;color:#a0a0b0;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">Caractéristiques</div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
+            <div style="background:#f4f4f7;border-radius:11px;padding:12px"><div style="font-size:11px;color:#8a8a9a;font-weight:700">Surface</div><div style="font-size:14px;font-weight:800;margin-top:2px">{{ selBSurface }}</div></div>
+            <div style="background:#f4f4f7;border-radius:11px;padding:12px"><div style="font-size:11px;color:#8a8a9a;font-weight:700">Pièces</div><div style="font-size:14px;font-weight:800;margin-top:2px">{{ selBRooms }}</div></div>
+            <div style="background:#f4f4f7;border-radius:11px;padding:12px"><div style="font-size:11px;color:#8a8a9a;font-weight:700">Chambres</div><div style="font-size:14px;font-weight:800;margin-top:2px">{{ selBBed }}</div></div>
+            <div style="background:#f4f4f7;border-radius:11px;padding:12px"><div style="font-size:11px;color:#8a8a9a;font-weight:700">Salles de bain</div><div style="font-size:14px;font-weight:800;margin-top:2px">{{ selBBath }}</div></div>
+            <div style="background:#f4f4f7;border-radius:11px;padding:12px"><div style="font-size:11px;color:#8a8a9a;font-weight:700">Étage</div><div style="font-size:14px;font-weight:800;margin-top:2px">{{ selBFloor }}</div></div>
+            <div style="background:#f4f4f7;border-radius:11px;padding:12px"><div style="font-size:11px;color:#8a8a9a;font-weight:700">DPE</div><div style="font-size:14px;font-weight:800;margin-top:2px">Classe {{ selBDpe }}</div></div>
+          </div>
+        </div>
+        <div>
+          <div style="font-size:11px;color:#a0a0b0;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Description</div>
+          <div style="font-size:13px;line-height:1.6;color:#3a3a48;font-weight:500">{{ selBDesc }}</div>
+        </div>
+        <div style="display:flex;gap:10px">
+          <div style="flex:1;background:linear-gradient(135deg,var(--ac,#5b4bff),var(--ac2,#8f6cff));border-radius:12px;padding:14px;color:#fff"><div style="font-size:11px;opacity:.85;font-weight:700">Marge agence</div><div style="font-size:20px;font-weight:800;margin-top:3px">{{ selBMargin }}</div></div>
+          <div style="flex:1;background:#f4f4f7;border-radius:12px;padding:14px"><div style="font-size:11px;color:#8a8a9a;font-weight:700">Type de bien</div><div style="font-size:16px;font-weight:800;margin-top:3px">{{ selBType }}</div></div>
+        </div>
+      </div>
+      <div style="padding:16px 24px;border-top:1px solid #f0eff4;display:flex;gap:10px">
+        <button style="flex:none;border:1px solid #e4e3ea;background:#fff;color:#14141f;font-weight:700;font-size:13px;padding:12px 16px;border-radius:11px;cursor:pointer" onClick="{{ editBien }}">Modifier</button>
+        <button style="flex:1;border:none;background:var(--ac,#5b4bff);color:#fff;font-weight:700;font-size:13px;padding:12px;border-radius:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px" onClick="{{ shareBien }}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 6 10 7 10-7"/></svg>Partager par mail au client</button>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- ============ MODAL ============ -->
+  <sc-if value="{{ modalOpen }}" hint-placeholder-val="{{ false }}">
+  <div style="position:fixed;inset:0;z-index:80;display:flex;align-items:center;justify-content:center;padding:24px">
+    <div style="position:absolute;inset:0;background:rgba(20,20,31,.4);animation:ov-in .18s ease" onClick="{{ closeModal }}"></div>
+    <form ref="{{ formRef }}" style="position:relative;width:{{ modalW }};max-width:100%;max-height:90vh;overflow-y:auto;background:#fff;border-radius:20px;box-shadow:0 30px 70px -20px rgba(0,0,0,.4);animation:md-in .22s ease" onSubmit="{{ onSubmit }}">
+      <div style="padding:22px 24px 4px"><div style="font-size:18px;font-weight:800;letter-spacing:-.3px">{{ modalTitle }}</div></div>
+      <div style="padding:16px 24px;display:flex;flex-direction:column;gap:14px">
+
+        <sc-if value="{{ isModalP }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-direction:column;gap:13px">
+          <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;font-weight:700;color:#6b6b7b">Nom complet<input name="name" defaultValue="{{ efName }}" placeholder="ex. Camille Petit" style="border:1px solid #e4e3ea;border-radius:10px;padding:11px 12px;font-size:13.5px;font-weight:600"></label>
+          <div style="display:flex;gap:12px">
+            <label style="flex:1;display:flex;flex-direction:column;gap:6px;font-size:12px;font-weight:700;color:#6b6b7b">Téléphone<input name="phone" defaultValue="{{ efPhone }}" placeholder="06 12 34 56 78" style="border:1px solid #e4e3ea;border-radius:10px;padding:11px 12px;font-size:13.5px;font-weight:600"></label>
+            <label style="flex:1;display:flex;flex-direction:column;gap:6px;font-size:12px;font-weight:700;color:#6b6b7b">Email<input name="email" defaultValue="{{ efEmail }}" placeholder="nom@email.fr" style="border:1px solid #e4e3ea;border-radius:10px;padding:11px 12px;font-size:13.5px;font-weight:600"></label>
+          </div>
+          <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;font-weight:700;color:#6b6b7b">Adresse<input name="address" defaultValue="{{ efAddress }}" placeholder="12 rue de Rivoli, Paris" style="border:1px solid #e4e3ea;border-radius:10px;padding:11px 12px;font-size:13.5px;font-weight:600"></label>
+          <div style="display:flex;gap:12px">
+            <label style="flex:1;display:flex;flex-direction:column;gap:6px;font-size:12px;font-weight:700;color:#6b6b7b">Budget<input name="budget" defaultValue="{{ efBudget }}" placeholder="450 000 €" style="border:1px solid #e4e3ea;border-radius:10px;padding:11px 12px;font-size:13.5px;font-weight:600"></label>
+            <label style="flex:1;display:flex;flex-direction:column;gap:6px;font-size:12px;font-weight:700;color:#6b6b7b">Statut<select name="stage" defaultValue="{{ efStage }}" style="border:1px solid #e4e3ea;border-radius:10px;padding:11px 12px;font-size:13.5px;font-weight:600;background:#fff"><option>Nouveau</option><option>Qualifié</option><option>Visite</option><option>Offre</option><option>Compromis</option></select></label>
+          </div>
+          <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;font-weight:700;color:#6b6b7b">Recherche<input name="search" defaultValue="{{ efSearch }}" placeholder="ex. T3, Paris 11e" style="border:1px solid #e4e3ea;border-radius:10px;padding:11px 12px;font-size:13.5px;font-weight:600"></label>
+        </div>
+        </sc-if>
+
+        <sc-if value="{{ isModalB }}" hint-placeholder-val="{{ false }}">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:13px">
+          <div style="grid-column:1/-1">
+            <div style="font-size:12px;font-weight:700;color:#6b6b7b;margin-bottom:6px">Photos du bien</div>
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">
+              <image-slot id="{{ mPhoto1 }}" style="width:100%;height:78px" shape="rounded" radius="10" placeholder="+"></image-slot>
+              <image-slot id="{{ mPhoto2 }}" style="width:100%;height:78px" shape="rounded" radius="10" placeholder="+"></image-slot>
+              <image-slot id="{{ mPhoto3 }}" style="width:100%;height:78px" shape="rounded" radius="10" placeholder="+"></image-slot>
+              <image-slot id="{{ mPhoto4 }}" style="width:100%;height:78px" shape="rounded" radius="10" placeholder="+"></image-slot>
+            </div>
+          </div>
+          <label style="grid-column:1/-1;display:flex;flex-direction:column;gap:6px;font-size:12px;font-weight:700;color:#6b6b7b">Titre du bien<input name="title" defaultValue="{{ ebTitle }}" placeholder="ex. Appartement T3" style="border:1px solid #e4e3ea;border-radius:10px;padding:11px 12px;font-size:13.5px;font-weight:600"></label>
+          <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;font-weight:700;color:#6b6b7b">Prix<input name="price" defaultValue="{{ ebPrice }}" placeholder="520 000 €" style="border:1px solid #e4e3ea;border-radius:10px;padding:11px 12px;font-size:13.5px;font-weight:600"></label>
+          <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;font-weight:700;color:#6b6b7b">Ville<input name="city" defaultValue="{{ ebCity }}" placeholder="Paris 8e" style="border:1px solid #e4e3ea;border-radius:10px;padding:11px 12px;font-size:13.5px;font-weight:600"></label>
+          <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;font-weight:700;color:#6b6b7b">Surface<input name="surface" defaultValue="{{ ebSurface }}" placeholder="68 m²" style="border:1px solid #e4e3ea;border-radius:10px;padding:11px 12px;font-size:13.5px;font-weight:600"></label>
+          <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;font-weight:700;color:#6b6b7b">Pièces<input name="rooms" defaultValue="{{ ebRooms }}" placeholder="3 pièces" style="border:1px solid #e4e3ea;border-radius:10px;padding:11px 12px;font-size:13.5px;font-weight:600"></label>
+          <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;font-weight:700;color:#6b6b7b">Chambres<input name="bedrooms" defaultValue="{{ ebBed }}" placeholder="2 ch." style="border:1px solid #e4e3ea;border-radius:10px;padding:11px 12px;font-size:13.5px;font-weight:600"></label>
+          <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;font-weight:700;color:#6b6b7b">SdB<input name="bathrooms" defaultValue="{{ ebBath }}" placeholder="1 SdB" style="border:1px solid #e4e3ea;border-radius:10px;padding:11px 12px;font-size:13.5px;font-weight:600"></label>
+          <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;font-weight:700;color:#6b6b7b">Étage<input name="floor" defaultValue="{{ ebFloor }}" placeholder="4e étage" style="border:1px solid #e4e3ea;border-radius:10px;padding:11px 12px;font-size:13.5px;font-weight:600"></label>
+          <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;font-weight:700;color:#6b6b7b">DPE<select name="dpe" defaultValue="{{ ebDpe }}" style="border:1px solid #e4e3ea;border-radius:10px;padding:11px 12px;font-size:13.5px;font-weight:600;background:#fff"><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option><option>F</option><option>G</option></select></label>
+          <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;font-weight:700;color:#6b6b7b">Marge agence (%)<input name="margin" defaultValue="{{ ebMargin }}" placeholder="4,2 %" style="border:1px solid #e4e3ea;border-radius:10px;padding:11px 12px;font-size:13.5px;font-weight:600"></label>
+          <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;font-weight:700;color:#6b6b7b">Statut du bien<select name="status" defaultValue="{{ ebStatus }}" style="border:1px solid #e4e3ea;border-radius:10px;padding:11px 12px;font-size:13.5px;font-weight:600;background:#fff"><option>Disponible</option><option>Sous offre</option><option>Vendu</option></select></label>
+          <label style="grid-column:1/-1;display:flex;flex-direction:column;gap:6px;font-size:12px;font-weight:700;color:#6b6b7b">Description <span style="color:#e5484d">*</span> obligatoire<textarea name="description" defaultValue="{{ ebDesc }}" required rows="3" placeholder="Décrivez le bien : atouts, environnement, prestations…" style="border:1px solid #e4e3ea;border-radius:10px;padding:11px 12px;font-size:13.5px;font-weight:500;resize:vertical"></textarea></label>
+          <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;font-weight:700;color:#6b6b7b">Prospect lié (offre)<select name="offerProspectId" defaultValue="{{ ebOfferId }}" style="border:1px solid #e4e3ea;border-radius:10px;padding:11px 12px;font-size:13.5px;font-weight:600;background:#fff"><option value="">Aucun</option><sc-for list="{{ prospectOptions }}" as="o" hint-placeholder-count="3"><option value="{{ o.id }}">{{ o.name }}</option></sc-for></select></label>
+          <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;font-weight:700;color:#6b6b7b">Étape de contractualisation<select name="contractStep" defaultValue="{{ ebContractStep }}" style="border:1px solid #e4e3ea;border-radius:10px;padding:11px 12px;font-size:13.5px;font-weight:600;background:#fff"><option>Aucune</option><option>Offre reçue</option><option>Offre acceptée</option><option>Compromis signé</option><option>Acte définitif</option></select></label>
+          <label style="grid-column:1/-1;display:flex;align-items:center;gap:10px;font-size:13px;font-weight:700;color:#14141f;background:#f4f4f7;padding:12px;border-radius:11px;cursor:pointer"><input type="checkbox" name="published" defaultChecked="{{ ebPublished }}" style="width:18px;height:18px;accent-color:var(--ac,#5b4bff)">Publier sur le site web (visible par les clients)</label>
+        </div>
+        </sc-if>
+
+        <sc-if value="{{ isModalV }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;font-weight:700;color:#6b6b7b">Prospect<select name="prospectId" defaultValue="{{ evProspectId }}" style="border:1px solid #e4e3ea;border-radius:10px;padding:11px 12px;font-size:13.5px;font-weight:600;background:#fff"><sc-for list="{{ prospectOptions }}" as="o" hint-placeholder-count="3"><option value="{{ o.id }}">{{ o.name }}</option></sc-for></select></label>
+          <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;font-weight:700;color:#6b6b7b">Bien / objet<input name="title" defaultValue="{{ evTitle }}" placeholder="ex. Visite T3 Rue de la Paix" style="border:1px solid #e4e3ea;border-radius:10px;padding:11px 12px;font-size:13.5px;font-weight:600"></label>
+          <div style="display:flex;gap:12px">
+            <label style="flex:1;display:flex;flex-direction:column;gap:6px;font-size:12px;font-weight:700;color:#6b6b7b">Jour<select name="day" defaultValue="{{ evDay }}" style="border:1px solid #e4e3ea;border-radius:10px;padding:11px 12px;font-size:13.5px;font-weight:600;background:#fff"><option>Lun</option><option>Mar</option><option>Mer</option><option>Jeu</option><option>Ven</option></select></label>
+            <label style="flex:1;display:flex;flex-direction:column;gap:6px;font-size:12px;font-weight:700;color:#6b6b7b">Heure<input name="time" defaultValue="{{ evTime }}" placeholder="14:00" style="border:1px solid #e4e3ea;border-radius:10px;padding:11px 12px;font-size:13.5px;font-weight:600"></label>
+          </div>
+          <sc-if value="{{ gcalOn }}" hint-placeholder-val="{{ false }}"><div style="display:flex;align-items:center;gap:8px;font-size:11.5px;color:#12a150;font-weight:700;background:#eafaf1;padding:9px 12px;border-radius:9px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg>Sera synchronisée avec Google Agenda</div></sc-if>
+        </div>
+        </sc-if>
+
+        <sc-if value="{{ isModalShare }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div style="display:flex;gap:11px;align-items:center;background:#f4f4f7;border-radius:12px;padding:12px 14px"><div style="width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,var(--ac,#5b4bff),var(--ac2,#8f6cff))"></div><div><div style="font-size:13px;font-weight:800">{{ shareTitle }}</div><div style="font-size:11.5px;color:#8a8a9a;font-weight:600">Fiche envoyée avec photos et description</div></div></div>
+          <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;font-weight:700;color:#6b6b7b">Destinataire<input name="to" placeholder="client@email.fr" style="border:1px solid #e4e3ea;border-radius:10px;padding:11px 12px;font-size:13.5px;font-weight:600"></label>
+          <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;font-weight:700;color:#6b6b7b">Message<textarea name="msg" rows="3" defaultValue="Bonjour, voici la fiche du bien qui pourrait vous intéresser. N'hésitez pas à me contacter pour organiser une visite." style="border:1px solid #e4e3ea;border-radius:10px;padding:11px 12px;font-size:13.5px;font-weight:500;resize:vertical"></textarea></label>
+        </div>
+        </sc-if>
+
+        <sc-if value="{{ isModalDoc }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;font-weight:700;color:#6b6b7b">Type de document<select name="type" defaultValue="{{ docTypeDefault }}" style="border:1px solid #e4e3ea;border-radius:10px;padding:11px 12px;font-size:13.5px;font-weight:600;background:#fff"><option>Pièce d'identité</option><option>Justificatif de revenus</option><option>Avis d'imposition</option><option>Offre d'achat</option><option>Compromis de vente</option><option>Simulation de prêt</option><option>Mandat</option><option>Autre</option></select></label>
+          <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;font-weight:700;color:#6b6b7b">Nom du document (optionnel)<input name="docname" placeholder="ex. CNI recto-verso" style="border:1px solid #e4e3ea;border-radius:10px;padding:11px 12px;font-size:13.5px;font-weight:600"></label>
+          <div style="border:1.5px dashed #d8d6e0;border-radius:11px;padding:18px;text-align:center;background:#faf9fc">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#b4b2c0" stroke-width="1.8" style="margin-bottom:8px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8l-5-5-5 5"/><path d="M12 3v12"/></svg>
+            <div style="font-size:12px;font-weight:700;color:#8a8a9a;margin-bottom:10px">Déposez un fichier (PDF, image…) ou parcourez</div>
+            <input type="file" name="file" style="font-size:12px;font-weight:600">
+          </div>
+        </div>
+        </sc-if>
+
+        <sc-if value="{{ isModalObjectif }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;gap:12px">
+          <label style="flex:1;display:flex;flex-direction:column;gap:6px;font-size:12px;font-weight:700;color:#6b6b7b">Ventes réalisées<input name="done" type="number" defaultValue="{{ egDone }}" style="border:1px solid #e4e3ea;border-radius:10px;padding:11px 12px;font-size:13.5px;font-weight:600"></label>
+          <label style="flex:1;display:flex;flex-direction:column;gap:6px;font-size:12px;font-weight:700;color:#6b6b7b">Objectif du mois<input name="target" type="number" defaultValue="{{ egTarget }}" style="border:1px solid #e4e3ea;border-radius:10px;padding:11px 12px;font-size:13.5px;font-weight:600"></label>
+        </div>
+        </sc-if>
+
+        <sc-if value="{{ isModalClient }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-direction:column;gap:13px">
+          <div style="font-size:12px;color:#8a8a9a;font-weight:600;background:#f4f4f7;border-radius:10px;padding:11px 13px">Créez un espace en marque blanche pour un nouveau client. Il pourra se connecter dès validation du paiement de sa cotisation.</div>
+          <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;font-weight:700;color:#6b6b7b">Nom de l'agence<input name="agency" placeholder="ex. Agence Horizon" style="border:1px solid #e4e3ea;border-radius:10px;padding:11px 12px;font-size:13.5px;font-weight:600"></label>
+          <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;font-weight:700;color:#6b6b7b">Email administrateur<input name="cemail" placeholder="admin@agence.fr" style="border:1px solid #e4e3ea;border-radius:10px;padding:11px 12px;font-size:13.5px;font-weight:600"></label>
+          <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;font-weight:700;color:#6b6b7b">Formule<select name="plan" style="border:1px solid #e4e3ea;border-radius:10px;padding:11px 12px;font-size:13.5px;font-weight:600;background:#fff"><option>Mensuel</option><option>Annuel</option></select></label>
+          <label style="display:flex;align-items:center;gap:10px;font-size:13px;font-weight:700;color:#14141f;background:#f4f4f7;padding:12px;border-radius:11px;cursor:pointer"><input type="checkbox" name="paid" style="width:18px;height:18px;accent-color:var(--ac,#5b4bff)">Paiement déjà encaissé (activer immédiatement)</label>
+        </div>
+        </sc-if>
+
+        <sc-if value="{{ isModalPlan }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <div style="font-size:12.5px;color:#8a8a9a;font-weight:600;background:#f4f4f7;border-radius:10px;padding:11px 13px">Le temps déjà réglé sur votre mois en cours est déduit au prorata — aucun surcoût.</div>
+          <div style="display:flex;justify-content:space-between;font-size:13.5px;font-weight:600"><span>Formule annuelle (‑10 %)</span><b>{{ annualPriceLabel }}</b></div>
+          <div style="display:flex;justify-content:space-between;font-size:13.5px;font-weight:600;color:#12a150"><span>Crédit prorata du mois en cours</span><b>− {{ creditLabel }}</b></div>
+          <div style="height:1px;background:#f0eff4"></div>
+          <div style="display:flex;justify-content:space-between;font-size:16px;font-weight:800"><span>À régler aujourd'hui</span><span>{{ netTodayLabel }}</span></div>
+          <div style="font-size:11.5px;color:#a0a0b0;font-weight:600">Puis 529,20 € / an à chaque échéance.</div>
+        </div>
+        </sc-if>
+
+      </div>
+      <div style="padding:14px 24px 22px;display:flex;gap:10px;justify-content:space-between;align-items:center">
+        <sc-if value="{{ showDelete }}" hint-placeholder-val="{{ false }}"><button type="button" style="border:none;background:none;color:#e5484d;font-weight:700;font-size:13px;padding:8px;cursor:pointer" onClick="{{ onDelete }}">Supprimer</button></sc-if>
+        <div style="display:flex;gap:10px;margin-left:auto">
+          <button type="button" style="border:1px solid #e4e3ea;background:#fff;color:#14141f;font-weight:700;font-size:13px;padding:11px 18px;border-radius:11px;cursor:pointer" onClick="{{ closeModal }}">Annuler</button>
+          <button type="submit" style="border:none;background:var(--ac,#5b4bff);color:#fff;font-weight:700;font-size:13px;padding:11px 20px;border-radius:11px;cursor:pointer">{{ submitLabel }}</button>
+        </div>
+      </div>
+    </form>
+  </div>
+  </sc-if>
+
+  <!-- ============ NOTIF/LOGIN/ACCOUNT ============ -->
+  <sc-if value="{{ notAuthed }}" hint-placeholder-val="{{ false }}">
+  <div style="position:fixed;inset:0;z-index:100;background:#0b0b12;display:flex;align-items:center;justify-content:center;font-size:14px;color:#14141f">
+    <div style="position:absolute;inset:0;background:radial-gradient(circle at 28% 18%,rgba(91,75,255,.28),transparent 58%),radial-gradient(circle at 82% 82%,rgba(56,189,248,.20),transparent 55%)"></div>
+    <div style="position:relative;width:408px;max-width:92%;background:#fff;border-radius:22px;padding:34px 30px;box-shadow:0 30px 80px -20px rgba(0,0,0,.6)">
+      <div style="display:flex;align-items:center;gap:11px;margin-bottom:24px">
+        <div style="width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,var(--ac,#5b4bff),var(--ac2,#8f6cff));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:20px">{{ brandInitial }}</div>
+        <div><div style="font-size:18px;font-weight:800;letter-spacing:-.3px">{{ brandName }}</div><div style="font-size:11px;color:#9a9aac;font-weight:600;letter-spacing:.4px">CRM IMMOBILIER · SaaS</div></div>
+      </div>
+      <div style="font-size:21px;font-weight:800;letter-spacing:-.4px;margin-bottom:4px">Connexion à votre espace</div>
+      <div style="font-size:12.5px;color:#8a8a9a;font-weight:600;margin-bottom:22px">Accès réservé aux abonnés actifs.</div>
+      <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;font-weight:700;color:#6b6b7b;margin-bottom:13px">Email<input value="camille@agence.fr" readOnly style="border:1px solid #e4e3ea;border-radius:11px;padding:12px 13px;font-size:14px;font-weight:600"></label>
+      <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;font-weight:700;color:#6b6b7b;margin-bottom:20px">Mot de passe<input type="password" value="demodemo" readOnly style="border:1px solid #e4e3ea;border-radius:11px;padding:12px 13px;font-size:14px;font-weight:600"></label>
+      <div style="font-size:11px;font-weight:700;color:#a0a0b0;text-transform:uppercase;letter-spacing:.5px;margin-bottom:9px">Démo — se connecter en tant que</div>
+      <div style="display:flex;flex-direction:column;gap:9px">
+        <button style="border:none;background:var(--ac,#5b4bff);color:#fff;font-weight:700;font-size:13.5px;padding:13px;border-radius:12px;cursor:pointer" onClick="{{ onLoginClient }}">Client · titulaire du compte</button>
+        <div style="display:flex;gap:9px">
+          <button style="flex:1;border:1px solid #e4e3ea;background:#fff;color:#14141f;font-weight:700;font-size:13px;padding:12px;border-radius:12px;cursor:pointer" onClick="{{ onLoginInvite }}">Utilisateur invité</button>
+          <button style="flex:1;border:1px solid #e4e3ea;background:#fff;color:#14141f;font-weight:700;font-size:13px;padding:12px;border-radius:12px;cursor:pointer" onClick="{{ onLoginAdmin }}">Admin SaaS</button>
+        </div>
+      </div>
+      <div style="font-size:11px;color:#b4b2c0;font-weight:600;text-align:center;margin-top:18px">Pas encore client ? Souscrivez sur le site pour obtenir un accès.</div>
+    </div>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{ isAdminView }}" hint-placeholder-val="{{ false }}">
+  <div style="position:fixed;inset:0;z-index:90;background:#f4f4f7;display:flex;flex-direction:column;font-size:14px;color:#14141f">
+    <header style="flex:none;height:66px;background:#fff;border-bottom:1px solid rgba(20,20,31,.07);display:flex;align-items:center;justify-content:space-between;padding:0 28px">
+      <div style="display:flex;align-items:center;gap:11px">
+        <div style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--ac,#5b4bff),var(--ac2,#8f6cff));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:17px">{{ brandInitial }}</div>
+        <div><div style="font-size:15px;font-weight:800;letter-spacing:-.3px">{{ brandName }} · Console SaaS</div><div style="font-size:10.5px;color:#9a9aac;font-weight:600;letter-spacing:.4px">GESTION DES ABONNÉS</div></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <div style="display:flex;align-items:center;gap:8px"><div style="width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,#ff8a5b,#ff5b8a);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px">CM</div><div style="font-size:12.5px;font-weight:700">{{ roleLabel }}</div></div>
+        <button style="border:1px solid #e4e3ea;background:#fff;color:#e5484d;font-weight:700;font-size:12.5px;padding:9px 14px;border-radius:10px;cursor:pointer" onClick="{{ logout }}">Se déconnecter</button>
+      </div>
+    </header>
+    <div style="flex:1;overflow-y:auto;padding:32px">
+      <div style="max-width:860px;margin:0 auto">
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px">
+          <div style="background:#fff;border:1px solid rgba(20,20,31,.05);border-radius:16px;padding:18px"><div style="font-size:12px;color:#8a8a9a;font-weight:700">Espaces clients</div><div style="font-size:30px;font-weight:800;letter-spacing:-1px;margin-top:8px">{{ clientCount }}</div></div>
+          <div style="background:#fff;border:1px solid rgba(20,20,31,.05);border-radius:16px;padding:18px"><div style="font-size:12px;color:#8a8a9a;font-weight:700">Abonnements actifs</div><div style="font-size:30px;font-weight:800;letter-spacing:-1px;margin-top:8px">{{ clientActive }}</div></div>
+          <div style="background:linear-gradient(135deg,var(--ac,#5b4bff),var(--ac2,#8f6cff));border-radius:16px;padding:18px;color:#fff"><div style="font-size:12px;opacity:.85;font-weight:700">MRR estimé</div><div style="font-size:30px;font-weight:800;letter-spacing:-1px;margin-top:8px">1 245 €</div></div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px"><div style="font-size:16px;font-weight:800">Espaces clients</div><button style="border:none;background:var(--ac,#5b4bff);color:#fff;font-weight:700;font-size:12.5px;padding:10px 15px;border-radius:10px;cursor:pointer" onClick="{{ openClient }}">+ Autoriser un nouveau client</button></div>
+        <div style="background:#fff;border:1px solid rgba(20,20,31,.05);border-radius:16px;padding:8px 18px">
+          <sc-for list="{{ clients }}" as="c" hint-placeholder-count="3">
+            <div style="display:flex;align-items:center;gap:13px;padding:15px 0;border-bottom:1px solid #f6f5f9">
+              <div style="width:38px;height:38px;border-radius:10px;background:#eef0ff;color:var(--ac,#5b4bff);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px">{{ c.initials }}</div>
+              <div style="flex:1;min-width:0"><div style="font-size:13.5px;font-weight:700">{{ c.agency }}</div><div style="font-size:11.5px;color:#8a8a9a;font-weight:600">{{ c.email }} · {{ c.plan }}</div></div>
+              <span style="{{ c.statusStyle }}">{{ c.status }}</span>
+              <button style="border:1px solid #e4e3ea;background:#fff;color:#3a3a48;font-weight:700;font-size:11.5px;padding:8px 13px;border-radius:9px;cursor:pointer" onClick="{{ c.onToggle }}">{{ c.toggleLabel }}</button>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{ accountOpen }}" hint-placeholder-val="{{ false }}">
+  <div style="position:fixed;inset:0;z-index:70;display:flex;align-items:center;justify-content:center;padding:24px;font-size:14px;color:#14141f">
+    <div style="position:absolute;inset:0;background:rgba(20,20,31,.45);animation:ov-in .18s ease" onClick="{{ closeAccount }}"></div>
+    <div style="position:relative;width:900px;max-width:100%;height:604px;max-height:90vh;background:#fff;border-radius:20px;box-shadow:0 30px 70px -20px rgba(0,0,0,.4);animation:md-in .22s ease;display:flex;overflow:hidden">
+      <div style="width:236px;flex:none;background:#faf9fc;border-right:1px solid #f0eff4;padding:20px 14px;display:flex;flex-direction:column;gap:3px">
+        <div style="display:flex;align-items:center;gap:11px;padding:6px 8px 16px">
+          <div style="width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,#ff8a5b,#ff5b8a);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:16px">CM</div>
+          <div style="min-width:0"><div style="font-size:14px;font-weight:800">Camille Mercier</div><div style="font-size:11px;color:#9a9aac;font-weight:600">{{ roleLabel }}</div></div>
+        </div>
+        <div style="{{ accTabProfil }}" onClick="{{ setTabProfil }}">Profil</div>
+        <sc-if value="{{ canBilling }}" hint-placeholder-val="{{ true }}"><div style="display:flex;flex-direction:column;gap:3px">
+          <div style="{{ accTabAbo }}" onClick="{{ setTabAbo }}">Abonnement</div>
+          <div style="{{ accTabFact }}" onClick="{{ setTabFact }}">Facturation</div>
+          <div style="{{ accTabBrand }}" onClick="{{ setTabBrand }}">Marque blanche</div>
+        </div></sc-if>
+        <sc-if value="{{ isInvite }}" hint-placeholder-val="{{ false }}"><div style="padding:10px 12px;font-size:11px;color:#a0a0b0;font-weight:600;line-height:1.45">La facturation et les moyens de paiement sont gérés par le titulaire du compte.</div></sc-if>
+        <div style="margin-top:auto;font-size:12.5px;font-weight:700;color:#e5484d;padding:11px;border-radius:10px;cursor:pointer" onClick="{{ logout }}">Se déconnecter</div>
+      </div>
+      <div style="flex:1;display:flex;flex-direction:column;min-width:0">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 26px;border-bottom:1px solid #f0eff4"><div style="font-size:17px;font-weight:800">{{ accTitle }}</div><div style="width:32px;height:32px;border-radius:9px;background:#f4f4f7;display:flex;align-items:center;justify-content:center;cursor:pointer" onClick="{{ closeAccount }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6b6b7b" stroke-width="2.4"><path d="M18 6 6 18M6 6l12 12"/></svg></div></div>
+        <div style="flex:1;overflow-y:auto;padding:26px">
+          <sc-if value="{{ tabProfil }}" hint-placeholder-val="{{ true }}">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+            <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;font-weight:700;color:#6b6b7b">Nom complet<input value="Camille Mercier" style="border:1px solid #e4e3ea;border-radius:10px;padding:11px 12px;font-size:13.5px;font-weight:600"></label>
+            <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;font-weight:700;color:#6b6b7b">Rôle<input value="{{ roleLabel }}" readOnly style="border:1px solid #e4e3ea;border-radius:10px;padding:11px 12px;font-size:13.5px;font-weight:600;background:#f4f4f7;color:#8a8a9a"></label>
+            <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;font-weight:700;color:#6b6b7b">Email<input value="camille@agence.fr" style="border:1px solid #e4e3ea;border-radius:10px;padding:11px 12px;font-size:13.5px;font-weight:600"></label>
+            <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;font-weight:700;color:#6b6b7b">Téléphone<input value="06 24 11 88 30" style="border:1px solid #e4e3ea;border-radius:10px;padding:11px 12px;font-size:13.5px;font-weight:600"></label>
+            <label style="grid-column:1/-1;display:flex;flex-direction:column;gap:6px;font-size:12px;font-weight:700;color:#6b6b7b">Agence<input value="{{ brandName }}" readOnly style="border:1px solid #e4e3ea;border-radius:10px;padding:11px 12px;font-size:13.5px;font-weight:600;background:#f4f4f7;color:#8a8a9a"></label>
+          </div>
+          <button style="margin-top:20px;border:none;background:var(--ac,#5b4bff);color:#fff;font-weight:700;font-size:13px;padding:11px 20px;border-radius:11px;cursor:pointer">Enregistrer</button>
+          </sc-if>
+          <sc-if value="{{ tabAbo }}" hint-placeholder-val="{{ false }}">
+          <div style="background:linear-gradient(135deg,var(--ac,#5b4bff),var(--ac2,#8f6cff));border-radius:16px;padding:22px;color:#fff;margin-bottom:18px">
+            <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px"><div style="min-width:0"><div style="font-size:12px;opacity:.85;font-weight:700">Formule actuelle</div><div style="font-size:24px;font-weight:800;letter-spacing:-.5px;line-height:1.15;margin-top:3px;white-space:nowrap">{{ planLabel }}</div></div><span style="flex:none;font-size:11px;font-weight:800;background:rgba(255,255,255,.22);padding:5px 11px;border-radius:20px">Actif</span></div>
+            <div style="font-size:13px;font-weight:600;opacity:.9;margin-top:14px">{{ priceLabel }} · {{ renewalLabel }}</div>
+          </div>
+          <sc-if value="{{ planIsMensuel }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex;gap:10px"><button style="border:none;background:var(--ac,#5b4bff);color:#fff;font-weight:700;font-size:13px;padding:11px 18px;border-radius:11px;cursor:pointer;white-space:nowrap" onClick="{{ openPlan }}">Passer à l'annuel (‑10 %)</button><button style="border:1px solid #f3d0d2;background:#fff;color:#e5484d;font-weight:700;font-size:13px;padding:11px 18px;border-radius:11px;cursor:pointer">Résilier</button></div>
+          </sc-if>
+          <sc-if value="{{ planIsAnnuel }}" hint-placeholder-val="{{ false }}"><div style="font-size:12.5px;color:#12a150;font-weight:700;background:#eafaf1;padding:12px 14px;border-radius:11px">Formule annuelle active — vous économisez 10 % par rapport au mensuel.</div></sc-if>
+          </sc-if>
+          <sc-if value="{{ tabFact }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;align-items:center;gap:12px;background:#f4f4f7;border-radius:12px;padding:14px 16px;margin-bottom:18px"><div style="width:44px;height:30px;border-radius:6px;background:#1a1a24;color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800">VISA</div><div style="flex:1"><div style="font-size:13px;font-weight:700">Visa •••• 4242</div><div style="font-size:11.5px;color:#8a8a9a;font-weight:600">Expire 09/28</div></div><div style="font-size:12px;font-weight:700;color:var(--ac,#5b4bff);cursor:pointer">Modifier</div></div>
+          <div style="font-size:11px;color:#a0a0b0;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">Factures</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid #f0eff4"><div style="font-size:13px;font-weight:600">Juillet 2026</div><div style="display:flex;gap:14px;align-items:center"><span style="font-size:13px;font-weight:700">49,00 €</span><span style="font-size:12px;font-weight:700;color:var(--ac,#5b4bff);cursor:pointer">PDF</span></div></div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid #f0eff4"><div style="font-size:13px;font-weight:600">Juin 2026</div><div style="display:flex;gap:14px;align-items:center"><span style="font-size:13px;font-weight:700">49,00 €</span><span style="font-size:12px;font-weight:700;color:var(--ac,#5b4bff);cursor:pointer">PDF</span></div></div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:11px 0"><div style="font-size:13px;font-weight:600">Mai 2026</div><div style="display:flex;gap:14px;align-items:center"><span style="font-size:13px;font-weight:700">49,00 €</span><span style="font-size:12px;font-weight:700;color:var(--ac,#5b4bff);cursor:pointer">PDF</span></div></div>
+          </sc-if>
+          <sc-if value="{{ tabBrand }}" hint-placeholder-val="{{ false }}">
+          <div style="font-size:12.5px;color:#8a8a9a;font-weight:600;margin-bottom:16px">Personnalisez l'outil aux couleurs de votre agence. Ces réglages s'appliquent à l'espace de vos clients.</div>
+          <label style="display:flex;flex-direction:column;gap:6px;font-size:12px;font-weight:700;color:#6b6b7b;max-width:320px">Nom de la marque<input value="{{ brandName }}" onChange="{{ onBrand }}" style="border:1px solid #e4e3ea;border-radius:10px;padding:11px 12px;font-size:13.5px;font-weight:600"></label>
+          <div style="margin-top:16px;display:flex;align-items:center;gap:11px;background:#f4f4f7;border-radius:12px;padding:14px 16px;max-width:320px"><div style="width:40px;height:40px;border-radius:11px;background:linear-gradient(135deg,var(--ac,#5b4bff),var(--ac2,#8f6cff));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:19px">{{ brandInitial }}</div><div><div style="font-size:14px;font-weight:800">{{ brandName }}</div><div style="font-size:11px;color:#9a9aac;font-weight:600">Aperçu du logo</div></div></div>
+          <div style="margin-top:14px;font-size:12px;color:#8a8a9a;font-weight:600">La couleur d'accent se règle dans le panneau <b>Tweaks</b> (Ambiance).</div>
+          </sc-if>
+          <sc-if value="{{ tabAdmin }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px"><div style="font-size:12.5px;color:#8a8a9a;font-weight:600">{{ clientActive }} espace(s) actif(s) · abonnements en marque blanche</div><button style="border:none;background:var(--ac,#5b4bff);color:#fff;font-weight:700;font-size:12.5px;padding:10px 15px;border-radius:10px;cursor:pointer" onClick="{{ openClient }}">+ Autoriser un client</button></div>
+          <sc-for list="{{ clients }}" as="c" hint-placeholder-count="3">
+            <div style="display:flex;align-items:center;gap:12px;padding:13px 14px;border:1px solid #f0eff4;border-radius:12px;margin-bottom:9px">
+              <div style="width:36px;height:36px;border-radius:10px;background:#eef0ff;color:var(--ac,#5b4bff);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px">{{ c.initials }}</div>
+              <div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:700">{{ c.agency }}</div><div style="font-size:11.5px;color:#8a8a9a;font-weight:600">{{ c.email }} · {{ c.plan }}</div></div>
+              <span style="{{ c.statusStyle }}">{{ c.status }}</span>
+              <button style="border:1px solid #e4e3ea;background:#fff;color:#3a3a48;font-weight:700;font-size:11.5px;padding:7px 12px;border-radius:9px;cursor:pointer" onClick="{{ c.onToggle }}">{{ c.toggleLabel }}</button>
+            </div>
+          </sc-for>
+          </sc-if>
+        </div>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;accent&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:[&quot;#2563eb&quot;,&quot;#38bdf8&quot;],&quot;options&quot;:[[&quot;#5b4bff&quot;,&quot;#8f6cff&quot;],[&quot;#0ea472&quot;,&quot;#34d399&quot;],[&quot;#2563eb&quot;,&quot;#38bdf8&quot;],[&quot;#f5623c&quot;,&quot;#ff8a5b&quot;],[&quot;#111827&quot;,&quot;#4b5563&quot;]],&quot;tsType&quot;:&quot;string[]&quot;,&quot;section&quot;:&quot;Ambiance&quot;},&quot;radius&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:11,&quot;min&quot;:2,&quot;max&quot;:26,&quot;step&quot;:1,&quot;unit&quot;:&quot;px&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Ambiance&quot;},&quot;density&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:&quot;spacieux&quot;,&quot;options&quot;:[&quot;compact&quot;,&quot;confort&quot;,&quot;spacieux&quot;],&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Ambiance&quot;}}">
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.formRef = React.createRef();
+    this.dragId = null;
+    this.WEEK = [6, 7, 8, 9, 10];
+    this.HOURS = [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
+    this.DAYMAP = { Lun: 6, Mar: 7, Mer: 8, Jeu: 9, Ven: 10 };
+    this.REVDAY = { 6: 'Lun', 7: 'Mar', 8: 'Mer', 9: 'Jeu', 10: 'Ven', 11: 'Sam', 12: 'Dim' };
+    this.state = {
+      active: 'dash', selectedId: null, selectedBienId: null,
+      modal: null, modalMode: 'create', editId: null,
+      gcal: false, agendaView: 'semaine',
+      query: '', pFilter: 'Tous', pSort: 'recent', bFilter: 'Tous', bPub: 'Toutes', bSort: 'recent',
+      authed: false, role: 'client', plan: 'Mensuel', brandName: 'Aparté', accountOpen: false, accountTab: 'profil', notifOpen: false,
+      goalDone: 3, goalTarget: 5,
+      notifs: [
+        { id: 1, kind: 'lead', title: 'Nouveau prospect', text: 'Léa Moreau a rempli le formulaire du site', time: 'il y a 12 min', read: false },
+        { id: 2, kind: 'visite', title: 'Visite dans 1 h', text: 'T3 · Rue de la Paix avec Marc Dubois', time: 'il y a 40 min', read: false },
+        { id: 3, kind: 'offre', title: 'Offre acceptée', text: 'Maison · Clichy — offre de Sophie Leroy acceptée', time: 'il y a 2 h', read: false },
+        { id: 4, kind: 'doc', title: 'Document reçu', text: 'Julie Martin a déposé sa simulation de prêt', time: 'hier', read: true }
+      ],
+      clients: [
+        { id: 1, agency: 'Agence Horizon', email: 'contact@horizon-immo.fr', plan: 'Annuel', status: 'Actif' },
+        { id: 2, agency: 'Studio Nord', email: 'hello@studionord.fr', plan: 'Mensuel', status: 'Actif' },
+        { id: 3, agency: 'Prestige Immobilier', email: 'admin@prestige.fr', plan: 'Mensuel', status: 'En attente de paiement' }
+      ],
+      prospects: [
+        { id: 1, name: 'Marc Dubois', initials: 'MD', c: ['#e8f0ff', '#3b6bff'], phone: '06 12 34 56 78', email: 'm.dubois@email.fr', address: '12 rue de Rivoli, Paris 4e', search: 'T3, Paris 8e', budget: '520 k€', stage: 'Visite', documents: [{ id: 11, name: 'CNI_Marc_Dubois.pdf', type: 'Pièce d\'identité', date: '02/07' }, { id: 12, name: 'Bulletins_salaire.pdf', type: 'Justificatif de revenus', date: '03/07' }] },
+        { id: 2, name: 'Sophie Leroy', initials: 'SL', c: ['#fde8f0', '#d6317a'], phone: '06 98 76 54 32', email: 's.leroy@email.fr', address: '8 av. Victor Hugo, Clichy', search: 'Maison, Clichy', budget: '680 k€', stage: 'Qualifié' },
+        { id: 3, name: 'Thomas Bernard', initials: 'TB', c: ['#ede8ff', '#5b4bff'], phone: '07 45 23 11 90', email: 't.bernard@email.fr', address: '3 rue Danton, Levallois', search: 'Studio, Levallois', budget: '290 k€', stage: 'Nouveau' },
+        { id: 4, name: 'Julie Martin', initials: 'JM', c: ['#e6f7f0', '#0d8a52'], phone: '06 33 44 55 66', email: 'j.martin@email.fr', address: '21 bd Voltaire, Paris 11e', search: 'T2, Paris 11e', budget: '410 k€', stage: 'Offre', documents: [{ id: 41, name: 'Offre_achat_signee.pdf', type: 'Offre d\'achat', date: '04/07' }, { id: 42, name: 'Simulation_pret.pdf', type: 'Simulation de prêt', date: '04/07' }] },
+        { id: 5, name: 'Paul Girard', initials: 'PG', c: ['#fff2e6', '#e07a1c'], phone: '06 77 88 99 00', email: 'p.girard@email.fr', address: '5 rue de la Gare, Meudon', search: 'Maison, Meudon', budget: '750 k€', stage: 'Compromis' },
+        { id: 6, name: 'Léa Moreau', initials: 'LM', c: ['#eae6ff', '#6b4bff'], phone: '07 11 22 33 44', email: 'l.moreau@email.fr', address: '17 rue du Château, Boulogne', search: 'T4, Boulogne', budget: '890 k€', stage: 'Qualifié' }
+      ],
+      biens: [
+        { id: 1, ref: 'APT-118', title: 'Appartement T3', city: 'Paris 8e', price: '520 000 €', surface: '68 m²', rooms: '3 pièces', bedrooms: '2 ch.', bathrooms: '1 SdB', floor: '4e étage', dpe: 'C', type: 'Appartement', status: 'Disponible', published: true, marginPct: '4,2 %', description: 'Appartement traversant au 4e étage avec ascenseur, entièrement rénové. Double séjour lumineux exposé sud, cuisine équipée, deux chambres avec rangements. Proche métro et commerces.', g: ['#5b4bff', '#8f6cff'] },
+        { id: 2, ref: 'MAI-204', title: 'Maison 5 pièces', city: 'Clichy', price: '680 000 €', surface: '110 m²', rooms: '5 pièces', bedrooms: '3 ch.', bathrooms: '2 SdB', floor: 'Maison', dpe: 'D', type: 'Maison', status: 'Sous offre', published: true, offerProspectId: 2, contractStep: 'Offre acceptée', marginPct: '3,8 %', description: 'Belle maison familiale sur trois niveaux avec jardin de 120 m². Séjour ouvert sur terrasse, cuisine récente, trois chambres à l\u2019étage, bureau et sous-sol aménageable.', g: ['#0ea472', '#34d399'] },
+        { id: 3, ref: 'STU-076', title: 'Studio meublé', city: 'Levallois', price: '290 000 €', surface: '26 m²', rooms: '1 pièce', bedrooms: '0 ch.', bathrooms: '1 SdE', floor: '2e étage', dpe: 'D', type: 'Studio', status: 'Disponible', published: false, marginPct: '5,0 %', description: 'Studio meublé idéalement situé, parfait investissement locatif. Pièce de vie optimisée, coin nuit séparé, salle d\u2019eau moderne. Rendement locatif attractif.', g: ['#f5623c', '#ff8a5b'] },
+        { id: 4, ref: 'APT-231', title: 'Appartement T4', city: 'Boulogne', price: '890 000 €', surface: '95 m²', rooms: '4 pièces', bedrooms: '3 ch.', bathrooms: '2 SdB', floor: '6e étage', dpe: 'B', type: 'Appartement', status: 'Disponible', published: true, marginPct: '4,0 %', description: 'Appartement d\u2019exception en dernier étage avec vue dégagée et grande terrasse. Prestations haut de gamme, triple exposition, parking en sous-sol.', g: ['#2563eb', '#38bdf8'] },
+        { id: 5, ref: 'MAI-312', title: 'Maison contemporaine', city: 'Meudon', price: '750 000 €', surface: '130 m²', rooms: '6 pièces', bedrooms: '4 ch.', bathrooms: '2 SdB', floor: 'Maison', dpe: 'A', type: 'Maison', status: 'Vendu', published: false, offerProspectId: 5, contractStep: 'Acte définitif', marginPct: '3,5 %', description: 'Maison contemporaine basse consommation, architecture moderne et matériaux nobles. Vastes volumes baignés de lumière, jardin paysager, garage double.', g: ['#64748b', '#94a3b8'] }
+      ],
+      visites: [
+        { id: 1, date: 6, time: '14:00', title: 'T3 · Rue de la Paix', prospectId: 1 },
+        { id: 2, date: 6, time: '16:00', title: 'Maison · Clichy', prospectId: 2 },
+        { id: 3, date: 8, time: '11:00', title: 'Studio · Levallois', prospectId: 3 },
+        { id: 4, date: 9, time: '18:00', title: 'T4 · Boulogne', prospectId: 6 },
+        { id: 5, date: 10, time: '10:00', title: 'Maison · Meudon', prospectId: 5 }
+      ]
+    };
+  }
+
+  stageMeta(s) { return ({ 'Nouveau': ['#eef0f3', '#6b6b7b'], 'Qualifié': ['#e9f7ef', '#12a150'], 'Visite': ['#fff2e6', '#e07a1c'], 'Offre': ['#ede8ff', '#5b4bff'], 'Compromis': ['#e6f7f0', '#0d8a52'] })[s] || ['#eef0f3', '#6b6b7b']; }
+  statusMeta(s) { return ({ 'Disponible': ['#e9f7ef', '#12a150'], 'Sous offre': ['#fff2e6', '#e07a1c'], 'Vendu': ['#eef0f3', '#6b6b7b'] })[s] || ['#e9f7ef', '#12a150']; }
+  nameOf(id) { const p = this.state.prospects.find(x => x.id === id); return p ? p.name : '—'; }
+  dayLabel(dn) { return ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'][new Date(2026, 6, dn).getDay()]; }
+
+  go(t) { this.setState({ active: t, selectedId: null, selectedBienId: null, query: '' }); }
+  openDetail(id) { this.setState({ selectedId: id }); }
+  closeDrawer() { this.setState({ selectedId: null }); }
+  openBien(id) { this.setState({ selectedBienId: id }); }
+  closeBien() { this.setState({ selectedBienId: null }); }
+
+  openModal(type, mode, id) {
+    mode = mode || 'create'; id = id == null ? null : id;
+    let eid = id;
+    if (type === 'bien' && mode === 'create') eid = Date.now();
+    this.setState({ modal: type, modalMode: mode, editId: eid });
+  }
+  closeModal() { this.setState({ modal: null }); }
+  onCreate() {
+    const a = this.state.active;
+    if (a === 'biens') this.openModal('bien', 'create');
+    else if (a === 'agenda') this.openModal('visite', 'create');
+    else this.openModal('prospect', 'create');
+  }
+  planVisite() { this.setState({ modal: 'visite', modalMode: 'create', editId: null }); }
+  editProspect() { this.openModal('prospect', 'edit', this.state.selectedId); }
+  editBien() { this.openModal('bien', 'edit', this.state.selectedBienId); }
+  editVisite(id) { this.openModal('visite', 'edit', id); }
+  shareBien() { this.openModal('share', 'create', this.state.selectedBienId); }
+
+  setStage(id, stage) { this.setState({ prospects: this.state.prospects.map(p => p.id === id ? { ...p, stage } : p) }); }
+  togglePublish(id) { this.setState({ biens: this.state.biens.map(b => b.id === id ? { ...b, published: !b.published } : b) }); }
+  toggleGcal() { this.setState({ gcal: !this.state.gcal }); }
+  setView(v) { this.setState({ agendaView: v }); }
+  onSearch(v) { this.setState({ query: v }); }
+  setPFilter(v) { this.setState({ pFilter: v }); }
+  setPSort(v) { this.setState({ pSort: v }); }
+  setBFilter(v) { this.setState({ bFilter: v }); }
+  setBPub(v) { this.setState({ bPub: v }); }
+  setBSort(v) { this.setState({ bSort: v }); }
+  numVal(s) { return parseInt(String(s || '').replace(/[^0-9]/g, ''), 10) || 0; }
+  login(role) { this.setState({ authed: true, role }); }
+  logout() { this.setState({ authed: false, accountOpen: false }); }
+  openAccount(tab) { this.setState({ accountOpen: true, accountTab: tab || 'profil', notifOpen: false }); }
+  closeAccount() { this.setState({ accountOpen: false }); }
+  setAccountTab(t) { this.setState({ accountTab: t }); }
+  toggleNotif() { this.setState({ notifOpen: !this.state.notifOpen }); }
+  markAllRead() { this.setState({ notifs: this.state.notifs.map(n => ({ ...n, read: true })) }); }
+  setBrand(v) { this.setState({ brandName: v || ' ' }); }
+  toggleClientPaid(id) { this.setState({ clients: this.state.clients.map(c => c.id === id ? { ...c, status: c.status === 'Actif' ? 'Suspendu' : 'Actif' } : c) }); }
+  switchPlan(p) { this.setState({ plan: p, modal: null }); }
+  deleteVisite(id) { this.setState({ visites: this.state.visites.filter(v => v.id !== id), modal: null }); }
+  moveVisite(id, patch) { this.setState({ visites: this.state.visites.map(v => v.id === id ? { ...v, ...patch } : v) }); }
+  moveStage(id, stage) { this.setStage(id, stage); }
+  setBienStatus(id, status) { this.setState({ biens: this.state.biens.map(b => b.id === id ? { ...b, status } : b) }); }
+  setContractStep(id, step) { this.setState({ biens: this.state.biens.map(b => b.id === id ? { ...b, contractStep: step } : b) }); }
+  linkOffer(id, pid) { pid = pid ? parseInt(pid, 10) : null; this.setState({ biens: this.state.biens.map(b => b.id === id ? { ...b, offerProspectId: pid, contractStep: (pid && (!b.contractStep || b.contractStep === 'Aucune')) ? 'Offre reçue' : b.contractStep } : b) }); }
+  addDoc(pid) { this.openModal('document', 'create', pid); }
+  deleteDoc(pid, did) { this.setState({ prospects: this.state.prospects.map(p => p.id === pid ? { ...p, documents: (p.documents || []).filter(x => x.id !== did) } : p) }); }
+
+  submit(e) {
+    e.preventDefault();
+    const f = this.formRef.current; if (!f) return this.closeModal();
+    const v = n => ((f.elements[n] && f.elements[n].value) || '').trim();
+    const chk = n => !!(f.elements[n] && f.elements[n].checked);
+    const t = this.state.modal, mode = this.state.modalMode, eid = this.state.editId;
+    if (t === 'prospect') {
+      const name = v('name') || 'Nouveau prospect';
+      const ini = (name.split(' ').map(w => w[0] || '').join('').slice(0, 2) || 'NP').toUpperCase();
+      const base = { name, initials: ini, phone: v('phone') || '—', email: v('email') || '—', address: v('address') || '—', budget: v('budget') || '—', search: v('search') || '—', stage: v('stage') || 'Nouveau' };
+      if (mode === 'edit') this.setState({ prospects: this.state.prospects.map(p => p.id === eid ? { ...p, ...base } : p), modal: null });
+      else this.setState({ prospects: [{ id: Date.now(), c: ['#eae6ff', '#6b4bff'], ...base }, ...this.state.prospects], modal: null, active: 'prospects' });
+    } else if (t === 'bien') {
+      const base = { title: v('title') || 'Nouveau bien', city: v('city') || '—', price: v('price') || '—', surface: v('surface') || '—', rooms: v('rooms') || '—', bedrooms: v('bedrooms') || '—', bathrooms: v('bathrooms') || '—', floor: v('floor') || '—', dpe: v('dpe') || 'D', marginPct: v('margin') || '—', description: v('description') || '', published: chk('published'), status: v('status') || 'Disponible', offerProspectId: (v('offerProspectId') ? parseInt(v('offerProspectId'), 10) : null), contractStep: v('contractStep') || 'Aucune', type: 'Bien' };
+      if (mode === 'edit') this.setState({ biens: this.state.biens.map(b => b.id === eid ? { ...b, ...base } : b), modal: null });
+      else this.setState({ biens: [{ id: eid, ref: 'NEW-' + String(eid).slice(-3), status: 'Disponible', g: ['#5b4bff', '#8f6cff'], ...base }, ...this.state.biens], modal: null, active: 'biens' });
+    } else if (t === 'visite') {
+      const pid = parseInt(v('prospectId'), 10) || (this.state.prospects[0] && this.state.prospects[0].id);
+      const day = v('day') || 'Lun'; const date = this.DAYMAP[day] || 6;
+      const base = { time: v('time') || '09:00', title: v('title') || 'Visite', prospectId: pid, date };
+      if (mode === 'edit') this.setState({ visites: this.state.visites.map(x => x.id === eid ? { ...x, ...base } : x), modal: null });
+      else this.setState({ visites: [...this.state.visites, { id: Date.now(), ...base }], modal: null, active: 'agenda' });
+    } else if (t === 'document') {
+      const type = v('type') || 'Autre';
+      const fileEl = f.elements['file'];
+      const fname = (fileEl && fileEl.files && fileEl.files[0] && fileEl.files[0].name) || v('docname') || (type + '.pdf');
+      const doc = { id: Date.now(), name: fname, type: type, date: new Date().toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' }) };
+      this.setState({ prospects: this.state.prospects.map(p => p.id === eid ? { ...p, documents: [...(p.documents || []), doc] } : p), modal: null });
+    } else if (t === 'share') {
+      const to = v('to'); const b = this.state.biens.find(x => x.id === eid);
+      const subj = encodeURIComponent('Fiche bien : ' + (b ? b.title : ''));
+      const body = encodeURIComponent(v('msg') + '\n\n' + (b ? (b.title + ' — ' + b.price + '\n' + b.city) : ''));
+      try { window.open('mailto:' + to + '?subject=' + subj + '&body=' + body, '_blank'); } catch (err) {}
+      this.setState({ modal: null });
+    } else if (t === 'objectif') {
+      const done = parseInt(v('done'), 10); const tgt = parseInt(v('target'), 10);
+      this.setState({ goalDone: isNaN(done) ? this.state.goalDone : Math.max(0, done), goalTarget: (isNaN(tgt) || tgt < 1) ? this.state.goalTarget : tgt, modal: null });
+    } else if (t === 'client') {
+      const paid = (f.elements['paid'] && f.elements['paid'].checked);
+      const nc = { id: Date.now(), agency: v('agency') || 'Nouvel espace', email: v('cemail') || '—', plan: v('plan') || 'Mensuel', status: paid ? 'Actif' : 'En attente de paiement' };
+      this.setState({ clients: [nc, ...this.state.clients], modal: null });
+    } else if (t === 'plan') {
+      this.setState({ plan: 'Annuel', modal: null });
+    } else this.closeModal();
+  }
+
+  renderVals() {
+    const p = this.props || {};
+    const D = { compact: ['18px', '12px'], confort: ['26px', '18px'], spacieux: ['34px', '24px'] };
+    const d = D[p.density] || D.confort;
+    const rad = (p.radius == null ? 16 : p.radius);
+    const ac = Array.isArray(p.accent) ? p.accent : ['#5b4bff', '#8f6cff'];
+    const rootVars = { '--ac': ac[0], '--ac2': ac[1] || ac[0], '--acSoft': ac[0] + '22', '--rad': rad + 'px', '--pad': d[0], '--gap': d[1] };
+
+    const st = this.state, active = st.active;
+    const navBase = 'display:flex;align-items:center;gap:11px;padding:11px 12px;border-radius:11px;font-weight:700;cursor:pointer;transition:background .15s ease;';
+    const navStyle = k => active === k ? navBase + 'background:var(--ac,#5b4bff);color:#fff;' : navBase + 'color:#6b6b7b;';
+    const titles = { dash: 'Tableau de bord', prospects: 'Prospects', biens: 'Biens', pipeline: 'Kanban', agenda: 'Agenda' };
+    const createLabels = { dash: 'Créer', prospects: 'Nouveau prospect', biens: 'Nouvelle annonce', pipeline: 'Nouveau prospect', agenda: 'Nouvelle visite' };
+
+    const q = (st.query || '').toLowerCase();
+    let pList = st.prospects.filter(p2 => (st.pFilter === 'Tous' || p2.stage === st.pFilter));
+    if (active === 'prospects' && q) pList = pList.filter(p2 => (p2.name + ' ' + p2.search + ' ' + p2.phone + ' ' + (p2.email || '')).toLowerCase().includes(q));
+    if (st.pSort === 'nom') pList = pList.slice().sort((a, b) => a.name.localeCompare(b.name));
+    else if (st.pSort === 'budget-desc') pList = pList.slice().sort((a, b) => this.numVal(b.budget) - this.numVal(a.budget));
+    else if (st.pSort === 'budget-asc') pList = pList.slice().sort((a, b) => this.numVal(a.budget) - this.numVal(b.budget));
+    const prospectRows = pList.map(p2 => { const sm = this.stageMeta(p2.stage); return { name: p2.name, initials: p2.initials, contact: p2.phone, search: p2.search, budget: p2.budget, stage: p2.stage, avatarBg: p2.c[0], avatarFg: p2.c[1], badgeBg: sm[0], badgeFg: sm[1], onClick: () => this.openDetail(p2.id) }; });
+
+    let bList = st.biens.filter(b => (st.bFilter === 'Tous' || b.status === st.bFilter));
+    bList = bList.filter(b => (st.bPub === 'Toutes' || (st.bPub === 'En ligne' ? b.published : !b.published)));
+    if (active === 'biens' && q) bList = bList.filter(b => (b.title + ' ' + b.city + ' ' + b.ref).toLowerCase().includes(q));
+    if (st.bSort === 'prix-desc') bList = bList.slice().sort((a, b) => this.numVal(b.price) - this.numVal(a.price));
+    else if (st.bSort === 'prix-asc') bList = bList.slice().sort((a, b) => this.numVal(a.price) - this.numVal(b.price));
+    const bienCards = bList.map(b => { const sm = this.statusMeta(b.status); return { ref: b.ref, title: b.title, city: b.city, price: b.price, surface: b.surface, rooms: b.rooms, bedrooms: b.bedrooms, status: b.status, thumb: 'linear-gradient(135deg,' + b.g[0] + ',' + b.g[1] + ')', statusBg: sm[0], statusFg: sm[1], pubColor: b.published ? '#12a150' : '#9a9aac', pubShort: b.published ? 'En ligne' : 'Brouillon', onClick: () => this.openBien(b.id) }; });
+
+    const stages = ['Nouveau', 'Qualifié', 'Visite', 'Offre', 'Compromis'];
+    const contractSteps = ['Offre reçue', 'Offre acceptée', 'Compromis signé', 'Acte définitif'];
+    const docTypeMeta = s => ({ 'Pièce d\'identité': ['#e8f0ff', '#3b6bff'], 'Justificatif de revenus': ['#e9f7ef', '#12a150'], 'Avis d\'imposition': ['#fff2e6', '#e07a1c'], 'Offre d\'achat': ['#ede8ff', '#5b4bff'], 'Compromis de vente': ['#e6f7f0', '#0d8a52'], 'Simulation de prêt': ['#fde8f0', '#d6317a'], 'Mandat': ['#eef0f3', '#6b6b7b'], 'Autre': ['#eef0f3', '#6b6b7b'] })[s] || ['#eef0f3', '#6b6b7b'];
+    const pipelineCols = stages.map(s => {
+      const items = st.prospects.filter(p2 => p2.stage === s).map(p2 => ({ name: p2.name, initials: p2.initials, search: p2.search, budget: p2.budget, avatarBg: p2.c[0], avatarFg: p2.c[1], onClick: () => this.openDetail(p2.id), onDragStart: () => { this.dragId = p2.id; } }));
+      return { name: s, count: items.length, items, onDragOver: e => e.preventDefault(), onDrop: () => { if (this.dragId != null) { this.moveStage(this.dragId, s); this.dragId = null; } } };
+    });
+
+    // agenda
+    const onDragOver = e => e.preventDefault();
+    const evVal = v => ({ id: v.id, time: v.time, title: v.title, who: this.nameOf(v.prospectId), label: v.time + ' · ' + v.title, onClick: () => this.editVisite(v.id), onDragStart: () => { this.dragId = v.id; } });
+    const weekHead = this.WEEK.map(dt => ({ label: this.dayLabel(dt), date: dt }));
+    const weekGrid = this.HOURS.map(h => ({ label: (h < 10 ? '0' + h : h) + ':00', cells: this.WEEK.map(dt => ({ events: st.visites.filter(v => v.date === dt && parseInt(v.time, 10) === h).map(evVal), onDragOver, onDrop: () => { if (this.dragId != null) { this.moveVisite(this.dragId, { date: dt, time: (h < 10 ? '0' + h : h) + ':00' }); this.dragId = null; } } })) }));
+    const firstW = new Date(2026, 6, 1).getDay();
+    const lead = (firstW + 6) % 7;
+    const cells = [];
+    for (let i = 0; i < lead; i++) cells.push({ isDay: false, isBlank: true });
+    for (let dn = 1; dn <= 31; dn++) cells.push({ isDay: true, isBlank: false, date: dn, events: st.visites.filter(v => v.date === dn).sort((a, b) => a.time.localeCompare(b.time)).map(evVal), onDragOver, onDrop: () => { if (this.dragId != null) { this.moveVisite(this.dragId, { date: dn }); this.dragId = null; } } });
+    while (cells.length % 7 !== 0) cells.push({ isDay: false, isBlank: true });
+    const monthCells = cells;
+
+    const dashVisites = [...st.visites].sort((a, b) => (a.date - b.date) || a.time.localeCompare(b.time)).slice(0, 4).map(v => ({ time: v.time, day: this.dayLabel(v.date), title: v.title, prospectName: this.nameOf(v.prospectId) }));
+
+    const segBase = 'padding:8px 18px;border-radius:8px;font-size:12.5px;font-weight:700;cursor:pointer;';
+    const segOn = segBase + 'background:var(--ac,#5b4bff);color:#fff;';
+    const segOff = segBase + 'color:#8a8a9a;';
+    const gcalConn = 'display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:700;padding:9px 14px;border-radius:11px;cursor:pointer;';
+
+    // prospect drawer
+    const sel = st.prospects.find(x => x.id === st.selectedId);
+    let selVals = {};
+    if (sel) {
+      const sm = this.stageMeta(sel.stage);
+      const sv = st.visites.filter(v => v.prospectId === sel.id).sort((a, b) => (a.date - b.date) || a.time.localeCompare(b.time)).map(v => ({ time: v.time, day: this.dayLabel(v.date), date: v.date, title: v.title, onClick: () => this.editVisite(v.id) }));
+      const selStages = stages.map(s => { const m = this.stageMeta(s); const on = sel.stage === s; return { label: s, style: on ? ('font-size:11.5px;font-weight:700;padding:6px 12px;border-radius:8px;cursor:pointer;background:' + m[0] + ';color:' + m[1] + ';border:1.5px solid ' + m[1]) : 'font-size:11.5px;font-weight:700;padding:6px 12px;border-radius:8px;cursor:pointer;background:#f4f4f7;color:#9a9aac;border:1.5px solid transparent', onClick: () => this.setStage(sel.id, s) }; });
+      const selDocs = (sel.documents || []).map(dd => { const m = docTypeMeta(dd.type); return { name: dd.name, type: dd.type, date: dd.date, typeBg: m[0], typeFg: m[1], onDelete: () => this.deleteDoc(sel.id, dd.id) }; });
+      const selOffres = st.biens.filter(b => b.offerProspectId === sel.id).map(b => ({ title: b.title, price: b.price, step: b.contractStep || 'Offre reçue', onClick: () => this.openBien(b.id) }));
+      selVals = { selName: sel.name, selInitials: sel.initials, selPhone: sel.phone, selEmail: sel.email, selAddress: sel.address, selBudget: sel.budget, selSearch: sel.search, selAvatarBg: sel.c[0], selAvatarFg: sel.c[1], selVisites: sv, selNoVisite: sv.length === 0, selStages, selDocs, selNoDocs: selDocs.length === 0, addDoc: () => this.addDoc(sel.id), selOffres, selNoOffre: selOffres.length === 0 };
+    }
+
+    // bien drawer
+    const selB = st.biens.find(b => b.id === st.selectedBienId);
+    let selBVals = {};
+    if (selB) {
+      const sm = this.statusMeta(selB.status);
+      const pubStyle = (selB.published ? 'color:#12a150;background:#eafaf1;' : 'color:#9a9aac;background:#f0eff4;') + 'display:flex;align-items:center;gap:7px;font-size:11.5px;font-weight:700;padding:8px 12px;border-radius:9px;cursor:pointer;';
+      const bStatuses = ['Disponible', 'Sous offre', 'Vendu'];
+      const selBStatusChips = bStatuses.map(s => { const m = this.statusMeta(s); const on = selB.status === s; return { label: s, style: (on ? ('background:' + m[0] + ';color:' + m[1] + ';border:1.5px solid ' + m[1] + ';') : 'background:#f4f4f7;color:#9a9aac;border:1.5px solid transparent;') + 'font-size:11.5px;font-weight:700;padding:6px 12px;border-radius:8px;cursor:pointer;', onClick: () => this.setBienStatus(selB.id, s) }; });
+      const curStep = selB.contractStep || 'Aucune';
+      const curIdx = contractSteps.indexOf(curStep);
+      const selBSteps = contractSteps.map((s, i) => { const done = curIdx >= 0 && i <= curIdx; return { label: s, num: i + 1, style: 'display:flex;align-items:center;gap:9px;padding:9px 11px;border-radius:10px;cursor:pointer;font-size:12px;font-weight:700;' + (done ? 'background:var(--acSoft,#eef2ff);color:var(--ac,#5b4bff);' : 'background:#f4f4f7;color:#9a9aac;'), dotStyle: 'width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;flex:none;' + (done ? 'background:var(--ac,#5b4bff);color:#fff;' : 'background:#e4e3ea;color:#9a9aac;'), onClick: () => this.setContractStep(selB.id, s) }; });
+      selBVals = { selBRef: selB.ref, selBTitle: selB.title, selBCity: selB.city, selBPrice: selB.price, selBSurface: selB.surface, selBRooms: selB.rooms, selBBed: selB.bedrooms, selBBath: selB.bathrooms, selBFloor: selB.floor, selBDpe: selB.dpe, selBType: selB.type, selBStatus: selB.status, selBStatusBg: sm[0], selBStatusFg: sm[1], selBDesc: selB.description || 'Aucune description.', selBMargin: selB.marginPct, selBPublishLabel: selB.published ? 'Publié sur le site' : 'Non publié', selBPubStyle: pubStyle, selPhoto1: 'bien-' + selB.id + '-1', selPhoto2: 'bien-' + selB.id + '-2', selPhoto3: 'bien-' + selB.id + '-3', togglePub: () => this.togglePublish(selB.id), editBien: () => this.editBien(), shareBien: () => this.shareBien(), selBStatusChips, selBSteps, selBOfferId: selB.offerProspectId ? String(selB.offerProspectId) : '', onLinkOffer: e => this.linkOffer(selB.id, e.target.value) };
+    }
+
+    // modal prefill
+    const ep = st.prospects.find(x => x.id === st.editId) || {};
+    const eb = st.biens.find(x => x.id === st.editId) || {};
+    const evx = st.visites.find(x => x.id === st.editId) || {};
+    const shareB = st.biens.find(x => x.id === st.editId) || {};
+    const mode = st.modalMode;
+    const mTitle = { prospect: mode === 'edit' ? 'Modifier le prospect' : 'Créer un prospect', bien: mode === 'edit' ? 'Modifier le bien' : 'Créer une annonce', visite: mode === 'edit' ? 'Modifier la visite' : 'Planifier une visite', share: 'Partager la fiche par mail', document: 'Ajouter un document', objectif: 'Modifier l\'objectif mensuel', client: 'Autoriser un nouveau client', plan: 'Passer à la formule annuelle' }[st.modal] || '';
+    const sLabel = { share: 'Envoyer', document: 'Ajouter', objectif: 'Enregistrer', client: 'Créer l\'espace', plan: 'Confirmer le passage', visite: mode === 'edit' ? 'Enregistrer' : 'Planifier' }[st.modal] || 'Enregistrer';
+    const evProspectId = (st.modal === 'visite' && mode === 'edit') ? evx.prospectId : (st.selectedId || (st.prospects[0] && st.prospects[0].id));
+
+    const accTabStyle = on => 'padding:10px 12px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;' + (on ? 'background:var(--ac,#5b4bff);color:#fff;' : 'color:#6b6b7b;');
+    const accTitles = { profil: 'Profil', abonnement: 'Abonnement', facturation: 'Facturation', marque: 'Marque blanche', admin: 'Administration' };
+    return {
+      rootVars,
+      nDash: navStyle('dash'), nProspects: navStyle('prospects'), nBiens: navStyle('biens'), nPipeline: navStyle('pipeline'), nAgenda: navStyle('agenda'),
+      goDash: () => this.go('dash'), goProspects: () => this.go('prospects'), goBiens: () => this.go('biens'), goPipeline: () => this.go('pipeline'), goAgenda: () => this.go('agenda'),
+      screenTitle: titles[active], createLabel: createLabels[active], onCreate: () => this.onCreate(),
+      isDash: active === 'dash', isProspects: active === 'prospects', isBiens: active === 'biens', isPipeline: active === 'pipeline', isAgenda: active === 'agenda',
+      countProspects: st.prospects.length, countVisites: st.visites.length, countBiens: st.biens.length,
+      prospectRows, bienCards, pipelineCols, dashVisites,
+      searchValue: st.query, onSearch: e => this.onSearch(e.target.value), searchPlaceholder: active === 'biens' ? 'Rechercher un bien…' : active === 'prospects' ? 'Rechercher un prospect…' : 'Rechercher…',
+      pFilter: st.pFilter, pSort: st.pSort, onPFilter: e => this.setPFilter(e.target.value), onPSort: e => this.setPSort(e.target.value), pCount: prospectRows.length, pEmpty: prospectRows.length === 0,
+      bFilter: st.bFilter, bPub: st.bPub, bSort: st.bSort, onBFilter: e => this.setBFilter(e.target.value), onBPub: e => this.setBPub(e.target.value), onBSort: e => this.setBSort(e.target.value), bCount: bienCards.length, bEmpty: bienCards.length === 0,
+      weekHead, weekGrid, monthCells,
+      isWeek: st.agendaView === 'semaine', isMonth: st.agendaView === 'mois',
+      segWeek: st.agendaView === 'semaine' ? segOn : segOff, segMonth: st.agendaView === 'mois' ? segOn : segOff,
+      setViewWeek: () => this.setView('semaine'), setViewMonth: () => this.setView('mois'),
+      agendaHead: st.agendaView === 'mois' ? 'Juillet 2026' : 'Semaine du 6 juil.',
+      toggleGcal: () => this.toggleGcal(), gcalOn: st.gcal,
+      gcalLabel: st.gcal ? 'camille.mercier@gmail.com' : 'Connecter Google Agenda',
+      gcalStyle: gcalConn + (st.gcal ? 'background:#eafaf1;color:#12a150;border:1px solid #b7e6c9;' : 'background:#fff;color:#3a3a48;border:1px solid #eceaf0;'),
+      selectedOpen: !!sel, closeDrawer: () => this.closeDrawer(), planVisite: () => this.planVisite(), editProspect: () => this.editProspect(),
+      ...selVals,
+      selectedBienOpen: !!selB, closeBien: () => this.closeBien(),
+      ...selBVals,
+      modalOpen: !!st.modal, modalTitle: mTitle, submitLabel: sLabel,
+      isModalP: st.modal === 'prospect', isModalB: st.modal === 'bien', isModalV: st.modal === 'visite', isModalShare: st.modal === 'share', isModalDoc: st.modal === 'document',
+      showDelete: st.modal === 'visite' && mode === 'edit', onDelete: () => this.deleteVisite(st.editId),
+      closeModal: () => this.closeModal(), onSubmit: e => this.submit(e), formRef: this.formRef,
+      prospectOptions: st.prospects.map(p2 => ({ id: p2.id, name: p2.name })),
+      efName: ep.name || '', efPhone: ep.phone || '', efEmail: ep.email || '', efAddress: ep.address || '', efBudget: ep.budget || '', efSearch: ep.search || '', efStage: ep.stage || 'Nouveau',
+      ebTitle: eb.title || '', ebPrice: eb.price || '', ebCity: eb.city || '', ebSurface: eb.surface || '', ebRooms: eb.rooms || '', ebBed: eb.bedrooms || '', ebBath: eb.bathrooms || '', ebFloor: eb.floor || '', ebDpe: eb.dpe || 'D', ebMargin: eb.marginPct || '', ebDesc: eb.description || '', ebPublished: eb.published != null ? eb.published : true,
+      mPhoto1: 'bien-' + st.editId + '-1', mPhoto2: 'bien-' + st.editId + '-2', mPhoto3: 'bien-' + st.editId + '-3', mPhoto4: 'bien-' + st.editId + '-4',
+      evTitle: evx.title || '', evTime: evx.time || '', evDay: this.REVDAY[evx.date] || 'Lun', evProspectId: evProspectId,
+      shareTitle: shareB.title || '', modalW: st.modal === 'bien' ? '680px' : '460px', ebStatus: eb.status || 'Disponible', ebOfferId: eb.offerProspectId || '', ebContractStep: eb.contractStep || 'Aucune', docTypeDefault: 'Pièce d\'identité',
+      notAuthed: !st.authed, authed: st.authed, role: st.role, isAdmin: st.role === 'admin', isAdminView: st.authed && st.role === 'admin', isClient: st.role === 'client', isInvite: st.role === 'invite', canBilling: st.role === 'client', brandName: st.brandName, brandInitial: (st.brandName.trim()[0] || 'A').toUpperCase(), roleLabel: st.role === 'admin' ? 'Administrateur SaaS' : st.role === 'invite' ? 'Utilisateur invité' : 'Titulaire du compte',
+      onLoginAdmin: () => this.login('admin'), onLoginClient: () => this.login('client'), onLoginInvite: () => this.login('invite'), logout: () => this.logout(),
+      plan: st.plan, planLabel: 'Pro · ' + st.plan, planIsMensuel: st.plan === 'Mensuel', planIsAnnuel: st.plan === 'Annuel', priceLabel: st.plan === 'Annuel' ? '529,20 € / an' : '49 € / mois', renewalLabel: st.plan === 'Annuel' ? 'renouvellement le 5 juillet 2027' : 'prochaine échéance le 5 août 2026', annualPriceLabel: '529,20 €', creditLabel: '29,40 €', netTodayLabel: '499,80 €', openPlan: () => this.openModal('plan', 'create'), isModalPlan: st.modal === 'plan',
+      accountOpen: st.accountOpen, openAccount: () => this.openAccount('profil'), closeAccount: () => this.closeAccount(),
+      tabProfil: st.accountTab === 'profil', tabAbo: st.accountTab === 'abonnement', tabFact: st.accountTab === 'facturation', tabBrand: st.accountTab === 'marque', tabAdmin: st.accountTab === 'admin',
+      setTabProfil: () => this.setAccountTab('profil'), setTabAbo: () => this.setAccountTab('abonnement'), setTabFact: () => this.setAccountTab('facturation'), setTabBrand: () => this.setAccountTab('marque'), setTabAdmin: () => this.setAccountTab('admin'),
+      accTitle: accTitles[st.accountTab] || 'Profil', accTabProfil: accTabStyle(st.accountTab === 'profil'), accTabAbo: accTabStyle(st.accountTab === 'abonnement'), accTabFact: accTabStyle(st.accountTab === 'facturation'), accTabBrand: accTabStyle(st.accountTab === 'marque'), accTabAdmin: accTabStyle(st.accountTab === 'admin'),
+      onBrand: e => this.setBrand(e.target.value),
+      notifOpen: st.notifOpen, toggleNotif: () => this.toggleNotif(), markAllRead: () => this.markAllRead(), notifUnread: st.notifs.filter(n => !n.read).length, hasUnread: st.notifs.some(n => !n.read),
+      notifs: st.notifs.map(n => ({ title: n.title, text: n.text, time: n.time, dotStyle: 'width:9px;height:9px;border-radius:50%;flex:none;margin-top:5px;background:' + (n.read ? '#d8d6e0' : (n.kind === 'offre' ? '#12a150' : n.kind === 'lead' ? '#5b4bff' : n.kind === 'visite' ? '#e07a1c' : '#3b6bff')) })),
+      goalLabel: st.goalDone + ' ventes sur ' + st.goalTarget, goalPct: Math.min(100, Math.round(st.goalDone / Math.max(1, st.goalTarget) * 100)) + '%', openObjectif: () => this.openModal('objectif', 'create'), egDone: st.goalDone, egTarget: st.goalTarget,
+      clients: st.clients.map(c => ({ agency: c.agency, email: c.email, plan: c.plan, status: c.status, initials: (c.agency[0] || 'C').toUpperCase(), statusStyle: 'font-size:10.5px;font-weight:700;padding:4px 9px;border-radius:6px;' + (c.status === 'Actif' ? 'background:#e9f7ef;color:#12a150' : c.status === 'Suspendu' ? 'background:#feeceb;color:#e5484d' : 'background:#fff2e6;color:#e07a1c'), toggleLabel: c.status === 'Actif' ? 'Suspendre' : 'Activer', onToggle: () => this.toggleClientPaid(c.id) })), clientActive: st.clients.filter(c => c.status === 'Actif').length, clientCount: st.clients.length, openClient: () => this.openModal('client', 'create'),
+      isModalObjectif: st.modal === 'objectif', isModalClient: st.modal === 'client'
+    };
+  }
+}
+</script>
+</body>
+</html>
