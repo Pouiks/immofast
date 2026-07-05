@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { PROSPECT_STAGES } from "@/types/domain";
+import { optionalInt, numOrNull } from "@/lib/zod";
 
 /** Validation du formulaire prospect (création & édition). */
 export const prospectFormSchema = z.object({
@@ -13,12 +14,7 @@ export const prospectFormSchema = z.object({
     .optional()
     .default(""),
   address: z.string().trim().optional().default(""),
-  budget_amount: z.coerce
-    .number()
-    .int()
-    .nonnegative()
-    .optional()
-    .or(z.nan().transform(() => undefined)),
+  budget_amount: optionalInt,
   search_label: z.string().trim().optional().default(""),
   stage: z.enum(PROSPECT_STAGES),
 });
@@ -32,7 +28,7 @@ export function toProspectPayload(values: ProspectFormValues) {
     phone: values.phone || null,
     email: values.email || null,
     address: values.address || null,
-    budget_amount: typeof values.budget_amount === "number" ? values.budget_amount : null,
+    budget_amount: numOrNull(values.budget_amount),
     search_label: values.search_label || null,
     stage: values.stage,
   };

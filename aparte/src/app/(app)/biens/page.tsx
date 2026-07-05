@@ -1,10 +1,5 @@
-import { ComingSoon } from "@/components/shell/coming-soon";
+import { BiensView } from "@/features/biens/components/biens-view";
 
 export default function BiensPage() {
-  return (
-    <ComingSoon
-      title="Biens"
-      description="Grille des mandats, fiche bien avec galerie, publication vers le site public et parcours de contractualisation."
-    />
-  );
+  return <BiensView />;
 }

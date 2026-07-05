@@ -98,7 +98,17 @@ export function ProspectDrawer() {
           </DrawerSection>
 
           {/* Visites liées */}
-          <DrawerSection title="Visites liées">
+          <DrawerSection
+            title="Visites liées"
+            action={
+              <button
+                className="text-xs font-bold text-accent"
+                onClick={() => openModal({ type: "visite", mode: "create", entityId: p.id })}
+              >
+                + Planifier
+              </button>
+            }
+          >
             {data.visits.length === 0 ? (
               <p className="py-1 text-[12.5px] font-semibold italic text-faint">
                 Aucune visite planifiée.

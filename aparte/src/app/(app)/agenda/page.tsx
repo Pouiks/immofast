@@ -1,10 +1,5 @@
-import { ComingSoon } from "@/components/shell/coming-soon";
+import { AgendaView } from "@/features/agenda/components/agenda-view";
 
 export default function AgendaPage() {
-  return (
-    <ComingSoon
-      title="Agenda"
-      description="Vues semaine / mois avec visites déplaçables par glisser-déposer et connexion Google Agenda."
-    />
-  );
+  return <AgendaView />;
 }
