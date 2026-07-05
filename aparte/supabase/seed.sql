@@ -107,12 +107,12 @@ insert into properties (id, account_id, ref, title, city, price_amount, surface_
  ('00000000-0000-0000-0000-0000000000b5', '11111111-1111-1111-1111-111111111111', 'MAI-312', 'Maison contemporaine', 'Meudon',    750000, 130, 6, 4, 2, 'Maison',    'A', 'Maison',      'vendu',      false, 3.5, 'Maison contemporaine basse consommation, architecture moderne et matériaux nobles. Vastes volumes baignés de lumière, jardin paysager, garage double.', '00000000-0000-0000-0000-0000000000a5', 'acte_definitif');
 
 -- ─── Visites ───────────────────────────────────────────────────────────────
-insert into visits (account_id, prospect_id, title, starts_at) values
- ('11111111-1111-1111-1111-111111111111', '00000000-0000-0000-0000-0000000000a1', 'T3 · Rue de la Paix', '2026-07-06 14:00:00+02'),
- ('11111111-1111-1111-1111-111111111111', '00000000-0000-0000-0000-0000000000a2', 'Maison · Clichy',     '2026-07-06 16:00:00+02'),
- ('11111111-1111-1111-1111-111111111111', '00000000-0000-0000-0000-0000000000a3', 'Studio · Levallois',  '2026-07-08 11:00:00+02'),
- ('11111111-1111-1111-1111-111111111111', '00000000-0000-0000-0000-0000000000a6', 'T4 · Boulogne',       '2026-07-09 18:00:00+02'),
- ('11111111-1111-1111-1111-111111111111', '00000000-0000-0000-0000-0000000000a5', 'Maison · Meudon',     '2026-07-10 10:00:00+02');
+insert into visits (id, account_id, prospect_id, title, starts_at) values
+ ('00000000-0000-0000-0000-0000000000c1', '11111111-1111-1111-1111-111111111111', '00000000-0000-0000-0000-0000000000a1', 'T3 · Rue de la Paix', '2026-07-06 14:00:00+02'),
+ ('00000000-0000-0000-0000-0000000000c2', '11111111-1111-1111-1111-111111111111', '00000000-0000-0000-0000-0000000000a2', 'Maison · Clichy',     '2026-07-06 16:00:00+02'),
+ ('00000000-0000-0000-0000-0000000000c3', '11111111-1111-1111-1111-111111111111', '00000000-0000-0000-0000-0000000000a3', 'Studio · Levallois',  '2026-07-08 11:00:00+02'),
+ ('00000000-0000-0000-0000-0000000000c4', '11111111-1111-1111-1111-111111111111', '00000000-0000-0000-0000-0000000000a6', 'T4 · Boulogne',       '2026-07-09 18:00:00+02'),
+ ('00000000-0000-0000-0000-0000000000c5', '11111111-1111-1111-1111-111111111111', '00000000-0000-0000-0000-0000000000a5', 'Maison · Meudon',     '2026-07-10 10:00:00+02');
 
 -- ─── Documents (GED) ───────────────────────────────────────────────────────
 insert into documents (account_id, prospect_id, name, doc_type) values
@@ -122,11 +122,11 @@ insert into documents (account_id, prospect_id, name, doc_type) values
  ('11111111-1111-1111-1111-111111111111', '00000000-0000-0000-0000-0000000000a4', 'Simulation_pret.pdf',      'simulation_pret');
 
 -- ─── Notifications ─────────────────────────────────────────────────────────
-insert into notifications (account_id, kind, title, body, read) values
- ('11111111-1111-1111-1111-111111111111', 'lead',     'Nouveau prospect',  'Léa Moreau a rempli le formulaire du site',            false),
- ('11111111-1111-1111-1111-111111111111', 'visite',   'Visite dans 1 h',   'T3 · Rue de la Paix avec Marc Dubois',                 false),
- ('11111111-1111-1111-1111-111111111111', 'offre',    'Offre acceptée',    'Maison · Clichy — offre de Sophie Leroy acceptée',     false),
- ('11111111-1111-1111-1111-111111111111', 'document', 'Document reçu',     'Julie Martin a déposé sa simulation de prêt',          true);
+insert into notifications (account_id, kind, title, body, read, entity_type, entity_id) values
+ ('11111111-1111-1111-1111-111111111111', 'lead',     'Nouveau prospect',  'Léa Moreau a rempli le formulaire du site',        false, 'prospect', '00000000-0000-0000-0000-0000000000a6'),
+ ('11111111-1111-1111-1111-111111111111', 'visite',   'Visite dans 1 h',   'T3 · Rue de la Paix avec Marc Dubois',             false, 'visit',    '00000000-0000-0000-0000-0000000000c1'),
+ ('11111111-1111-1111-1111-111111111111', 'offre',    'Offre acceptée',    'Maison · Clichy — offre de Sophie Leroy acceptée', false, 'property', '00000000-0000-0000-0000-0000000000b2'),
+ ('11111111-1111-1111-1111-111111111111', 'document', 'Document reçu',     'Julie Martin a déposé sa simulation de prêt',      true,  'prospect', '00000000-0000-0000-0000-0000000000a4');
 
 -- ─── Facturation ───────────────────────────────────────────────────────────
 insert into invoices (account_id, period, amount_cents) values

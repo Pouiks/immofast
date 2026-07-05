@@ -29,6 +29,8 @@ export function Drawer({
   return (
     <Overlay onClose={onClose} z={z}>
       <div
+        role="dialog"
+        aria-modal="true"
         className="absolute inset-y-0 right-0 flex max-w-full flex-col bg-surface shadow-[-20px_0_50px_-20px_rgba(0,0,0,.3)] [animation:var(--animate-dr-in)]"
         style={{ width }}
       >

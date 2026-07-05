@@ -16,3 +16,9 @@ export async function markAllRead(): Promise<void> {
   const { error } = await sb.from("notifications").update({ read: true }).eq("read", false);
   if (error) throw error;
 }
+
+export async function markOneRead(id: string): Promise<void> {
+  const sb = createClient();
+  const { error } = await sb.from("notifications").update({ read: true }).eq("id", id);
+  if (error) throw error;
+}

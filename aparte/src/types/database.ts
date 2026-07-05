@@ -109,6 +109,8 @@ export type DocumentRow = Timestamps & {
   storage_path: string | null;
 };
 
+export type NotificationEntity = "prospect" | "property" | "visit";
+
 export type NotificationRow = Timestamps & {
   id: string;
   account_id: string;
@@ -116,6 +118,8 @@ export type NotificationRow = Timestamps & {
   title: string;
   body: string | null;
   read: boolean;
+  entity_type: NotificationEntity | null;
+  entity_id: string | null;
 };
 
 export type InvoiceRow = Timestamps & {
@@ -152,7 +156,10 @@ export type Database = {
       property_photos: Table<PropertyPhotoRow, "position">;
       visits: Table<VisitRow, "account_id" | "prospect_id">;
       documents: Table<DocumentRow, "account_id" | "storage_path">;
-      notifications: Table<NotificationRow, "account_id" | "body" | "read">;
+      notifications: Table<
+        NotificationRow,
+        "account_id" | "body" | "read" | "entity_type" | "entity_id"
+      >;
       invoices: Table<InvoiceRow, "pdf_url">;
       payment_methods: Table<PaymentMethodRow>;
     };
