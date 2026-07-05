@@ -6,8 +6,16 @@
 --   email : camille@agence.fr   ·   mot de passe : demodemo
 
 -- Nettoyage (les suppressions cascadent sur profil + données CRM).
-delete from auth.users where id = '22222222-2222-2222-2222-222222222222';
-delete from accounts   where id = '11111111-1111-1111-1111-111111111111';
+delete from auth.users where id in (
+  '22222222-2222-2222-2222-222222222222',
+  '44444444-4444-4444-4444-444444444444'
+);
+delete from accounts where id in (
+  '11111111-1111-1111-1111-111111111111',
+  '33333333-3333-3333-3333-333333333333'
+);
+-- Quelques espaces clients supplémentaires (gérés depuis la console admin).
+delete from accounts where email in ('contact@horizon-immo.fr', 'hello@studionord.fr', 'admin@prestige.fr');
 
 -- ─── Espace client ─────────────────────────────────────────────────────────
 insert into accounts (id, agency_name, brand_name, accent, plan, status, email)
@@ -42,6 +50,44 @@ values (
 insert into profiles (id, account_id, full_name, email, phone, role)
 values ('22222222-2222-2222-2222-222222222222', '11111111-1111-1111-1111-111111111111',
         'Camille Mercier', 'camille@agence.fr', '06 24 11 88 30', 'client');
+
+-- ─── Admin SaaS (console de gestion des espaces) ───────────────────────────
+insert into accounts (id, agency_name, brand_name, accent, plan, status, email)
+values ('33333333-3333-3333-3333-333333333333', 'Aparté', 'Aparté',
+        array['#2563eb', '#38bdf8'], 'mensuel', 'active', 'admin@aparte.fr');
+
+insert into auth.users (
+  instance_id, id, aud, role, email, encrypted_password,
+  email_confirmed_at, created_at, updated_at,
+  raw_app_meta_data, raw_user_meta_data,
+  confirmation_token, recovery_token, email_change_token_new, email_change
+) values (
+  '00000000-0000-0000-0000-000000000000',
+  '44444444-4444-4444-4444-444444444444',
+  'authenticated', 'authenticated', 'admin@aparte.fr',
+  crypt('demodemo', gen_salt('bf')),
+  now(), now(), now(),
+  '{"provider":"email","providers":["email"]}', '{"full_name":"Admin Aparté"}',
+  '', '', '', ''
+);
+
+insert into auth.identities (id, user_id, provider_id, identity_data, provider, last_sign_in_at, created_at, updated_at)
+values (
+  gen_random_uuid(), '44444444-4444-4444-4444-444444444444',
+  '44444444-4444-4444-4444-444444444444',
+  '{"sub":"44444444-4444-4444-4444-444444444444","email":"admin@aparte.fr"}',
+  'email', now(), now(), now()
+);
+
+insert into profiles (id, account_id, full_name, email, phone, role)
+values ('44444444-4444-4444-4444-444444444444', '33333333-3333-3333-3333-333333333333',
+        'Admin Aparté', 'admin@aparte.fr', null, 'admin');
+
+-- Espaces clients gérés par l'admin (sans utilisateur associé pour la démo).
+insert into accounts (agency_name, brand_name, accent, plan, status, email) values
+ ('Agence Horizon',      'Agence Horizon',      array['#2563eb','#38bdf8'], 'annuel',  'active',          'contact@horizon-immo.fr'),
+ ('Studio Nord',         'Studio Nord',         array['#2563eb','#38bdf8'], 'mensuel', 'active',          'hello@studionord.fr'),
+ ('Prestige Immobilier', 'Prestige Immobilier', array['#2563eb','#38bdf8'], 'mensuel', 'pending_payment', 'admin@prestige.fr');
 
 -- ─── Prospects ─────────────────────────────────────────────────────────────
 insert into prospects (id, account_id, full_name, phone, email, address, budget_amount, search_label, stage) values

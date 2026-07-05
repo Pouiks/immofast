@@ -82,18 +82,48 @@ export async function deleteProspect(id: string): Promise<void> {
   if (error) throw error;
 }
 
+const DOCUMENTS_BUCKET = "documents";
+
+/** Téléverse un fichier dans le bucket privé, chemin `<account>/<prospect>/…`. */
+export async function uploadDocumentFile(
+  accountId: string,
+  prospectId: string,
+  file: File,
+): Promise<string> {
+  const sb = createClient();
+  const safeName = file.name.replace(/[^\w.\-]+/g, "_");
+  const path = `${accountId}/${prospectId}/${Date.now()}-${safeName}`;
+  const { error } = await sb.storage.from(DOCUMENTS_BUCKET).upload(path, file);
+  if (error) throw error;
+  return path;
+}
+
 export async function addDocument(input: {
   prospect_id: string;
   name: string;
   doc_type: DocumentType;
+  storage_path?: string | null;
 }): Promise<void> {
   const sb = createClient();
   const { error } = await sb.from("documents").insert(input);
   if (error) throw error;
 }
 
-export async function deleteDocument(id: string): Promise<void> {
+/** URL signée temporaire pour consulter/télécharger un document privé. */
+export async function getDocumentUrl(storagePath: string): Promise<string> {
   const sb = createClient();
+  const { data, error } = await sb.storage
+    .from(DOCUMENTS_BUCKET)
+    .createSignedUrl(storagePath, 60);
+  if (error) throw error;
+  return data.signedUrl;
+}
+
+export async function deleteDocument(id: string, storagePath?: string | null): Promise<void> {
+  const sb = createClient();
+  if (storagePath) {
+    await sb.storage.from(DOCUMENTS_BUCKET).remove([storagePath]);
+  }
   const { error } = await sb.from("documents").delete().eq("id", id);
   if (error) throw error;
 }

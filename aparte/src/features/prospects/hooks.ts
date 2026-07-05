@@ -99,7 +99,8 @@ export function useAddDocument() {
 export function useDeleteDocument() {
   const invalidate = useInvalidate();
   return useMutation({
-    mutationFn: (v: { id: string; prospectId: string }) => deleteDocument(v.id),
+    mutationFn: (v: { id: string; prospectId: string; storagePath?: string | null }) =>
+      deleteDocument(v.id, v.storagePath),
     onSuccess: (_d, v) => invalidate(v.prospectId),
   });
 }

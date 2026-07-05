@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/features/auth/current-user";
 import { ThemeProvider } from "@/components/theme-provider";
+import { AccountProvider } from "@/features/account/account-context";
 import { Sidebar } from "@/components/shell/sidebar";
 import { Topbar } from "@/components/shell/topbar";
 import { AccountPanel } from "@/features/account/account-panel";
@@ -18,15 +19,17 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   return (
     <ThemeProvider accent={user.account.accent}>
-      <div className="flex h-screen overflow-hidden">
-        <Sidebar brandName={user.account.brandName} fullName={user.fullName} role={user.role} />
-        <div className="flex min-w-0 flex-1 flex-col">
-          <Topbar />
-          <main className="flex-1 overflow-y-auto px-7 py-[26px]">{children}</main>
+      <AccountProvider initialUser={user}>
+        <div className="flex h-screen overflow-hidden">
+          <Sidebar />
+          <div className="flex min-w-0 flex-1 flex-col">
+            <Topbar />
+            <main className="flex-1 overflow-y-auto px-7 py-[26px]">{children}</main>
+          </div>
         </div>
-      </div>
-      <AccountPanel />
-      <Overlays />
+        <AccountPanel />
+        <Overlays />
+      </AccountProvider>
     </ThemeProvider>
   );
 }

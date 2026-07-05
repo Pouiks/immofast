@@ -7,6 +7,7 @@ import { PropertyDrawer } from "@/features/biens/components/property-drawer";
 import { PropertyModal } from "@/features/biens/components/property-modal";
 import { ShareModal } from "@/features/biens/components/share-modal";
 import { VisitModal } from "@/features/agenda/components/visit-modal";
+import { PlanModal } from "@/features/account/plan-modal";
 
 /**
  * Monte les overlays globaux (drawers de détail + modale unique multi-usage).
@@ -23,6 +24,7 @@ export function Overlays() {
       <PropertyModal />
       <ShareModal />
       <VisitModal />
+      <PlanModal />
     </>
   );
 }

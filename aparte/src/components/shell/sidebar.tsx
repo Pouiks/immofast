@@ -5,23 +5,19 @@ import { usePathname } from "next/navigation";
 import { ChevronRight, Target } from "lucide-react";
 import { CRM_NAV } from "@/config/nav";
 import { useUIStore } from "@/stores/ui-store";
+import { useAccount } from "@/features/account/account-context";
 import { initials } from "@/lib/utils";
 import { cn } from "@/lib/utils";
-import { ROLE_LABELS, type Role } from "@/types/domain";
+import { ROLE_LABELS } from "@/types/domain";
 
-export interface SidebarProps {
-  brandName: string;
-  fullName: string;
-  role: Role;
-  /** Objectif mensuel (placeholder tant que les réglages ne sont pas branchés). */
-  goalDone?: number;
-  goalTarget?: number;
-}
-
-export function Sidebar({ brandName, fullName, role, goalDone = 3, goalTarget = 5 }: SidebarProps) {
+export function Sidebar({ goalDone = 3, goalTarget = 5 }: { goalDone?: number; goalTarget?: number }) {
   const pathname = usePathname();
   const openModal = useUIStore((s) => s.openModal);
   const openAccount = useUIStore((s) => s.openAccount);
+  const { account, profile } = useAccount();
+  const brandName = account.brandName;
+  const fullName = profile.fullName;
+  const role = profile.role;
   const pct = Math.min(100, Math.round((goalDone / Math.max(1, goalTarget)) * 100));
 
   return (

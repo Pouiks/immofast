@@ -138,7 +138,7 @@ export type PaymentMethodRow = Timestamps & {
 export type Database = {
   public: {
     Tables: {
-      accounts: Table<AccountRow, "email">;
+      accounts: Table<AccountRow, "email" | "accent" | "plan" | "status">;
       profiles: Table<ProfileRow, "phone">;
       // account_id est renseigné par trigger (set_account_id) → optionnel à l'insert.
       prospects: Table<

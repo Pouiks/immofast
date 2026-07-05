@@ -5,6 +5,7 @@ import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { useUIStore } from "@/stores/ui-store";
 import { useProspectDetail, useSetProspectStage, useDeleteProspect, useDeleteDocument } from "../hooks";
+import { getDocumentUrl } from "../api";
 import { Drawer, DrawerSection, Avatar, Badge, Button } from "@/components/ui";
 import { formatEuro } from "@/lib/utils";
 import { STAGE_TONE } from "@/lib/status";
@@ -152,20 +153,28 @@ export function ProspectDrawer() {
               <div className="flex flex-col gap-2">
                 {data.documents.map((d) => (
                   <div key={d.id} className="flex items-center gap-3 rounded-[11px] bg-app px-3 py-2.5">
-                    <div className="flex size-8 flex-none items-center justify-center rounded-[9px] bg-surface">
-                      <FileText size={17} strokeWidth={2} className="text-[#8a8a9a]" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="truncate text-[12.5px] font-bold">{d.name}</div>
-                      <div className="mt-0.5 flex items-center gap-1.5">
-                        <Badge tone="accent">{DOCUMENT_TYPE_LABELS[d.doc_type]}</Badge>
-                        <span className="text-[10.5px] font-semibold text-ghost">
-                          {format(new Date(d.created_at), "dd/MM")}
-                        </span>
-                      </div>
-                    </div>
                     <button
-                      onClick={() => deleteDoc.mutate({ id: d.id, prospectId: p.id })}
+                      type="button"
+                      onClick={() => d.storage_path && openDocument(d.storage_path)}
+                      disabled={!d.storage_path}
+                      className="flex min-w-0 flex-1 items-center gap-3 text-left disabled:cursor-default"
+                      title={d.storage_path ? "Ouvrir le document" : "Aucun fichier joint"}
+                    >
+                      <div className="flex size-8 flex-none items-center justify-center rounded-[9px] bg-surface">
+                        <FileText size={17} strokeWidth={2} className="text-[#8a8a9a]" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="truncate text-[12.5px] font-bold">{d.name}</div>
+                        <div className="mt-0.5 flex items-center gap-1.5">
+                          <Badge tone="accent">{DOCUMENT_TYPE_LABELS[d.doc_type]}</Badge>
+                          <span className="text-[10.5px] font-semibold text-ghost">
+                            {format(new Date(d.created_at), "dd/MM")}
+                          </span>
+                        </div>
+                      </div>
+                    </button>
+                    <button
+                      onClick={() => deleteDoc.mutate({ id: d.id, prospectId: p.id, storagePath: d.storage_path })}
                       className="flex size-6 flex-none items-center justify-center rounded-[7px]"
                       aria-label="Supprimer le document"
                     >
@@ -239,6 +248,15 @@ function StageChip({
       {PROSPECT_STAGE_LABELS[stage]}
     </button>
   );
+}
+
+async function openDocument(storagePath: string) {
+  try {
+    const url = await getDocumentUrl(storagePath);
+    window.open(url, "_blank");
+  } catch {
+    alert("Impossible d'ouvrir le document.");
+  }
 }
 
 function Contact({ icon, value }: { icon: React.ReactNode; value: string | null }) {

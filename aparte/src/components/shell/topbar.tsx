@@ -7,6 +7,7 @@ import { navItemForPath } from "@/config/nav";
 import { useUIStore, type ModalType } from "@/stores/ui-store";
 import { Button } from "@/components/ui";
 import { NotifPanel } from "@/features/notifications/notif-panel";
+import { useNotifications } from "@/features/notifications/hooks";
 
 /** Modale de création déclenchée par le bouton « + » selon l'écran actif. */
 const CREATE_MODAL: Record<string, ModalType> = {
@@ -18,6 +19,8 @@ export function Topbar() {
   const pathname = usePathname();
   const item = navItemForPath(pathname);
   const { query, setQuery, notifOpen, toggleNotif, openModal } = useUIStore();
+  const { data: notifs = [] } = useNotifications();
+  const unread = notifs.filter((n) => !n.read).length;
 
   // La recherche est propre à chaque écran : on la réinitialise à la navigation.
   useEffect(() => setQuery(""), [pathname, setQuery]);
@@ -42,10 +45,15 @@ export function Topbar() {
         <div className="relative">
           <button
             onClick={toggleNotif}
-            className="flex size-10 items-center justify-center rounded-[11px] bg-app text-muted"
+            className="relative flex size-10 items-center justify-center rounded-[11px] bg-app text-muted"
             aria-label="Notifications"
           >
             <Bell size={18} strokeWidth={2.1} />
+            {unread > 0 && (
+              <span className="absolute -right-[3px] -top-[3px] flex h-4 min-w-4 items-center justify-center rounded-full border-2 border-surface bg-danger px-1 text-[9.5px] font-extrabold text-white">
+                {unread}
+              </span>
+            )}
           </button>
           {notifOpen && <NotifPanel />}
         </div>
