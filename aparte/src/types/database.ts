@@ -40,6 +40,8 @@ export type AccountRow = Timestamps & {
   plan: Plan;
   status: AccountStatus;
   email: string | null;
+  stripe_customer_id: string | null;
+  trial_ends_at: string | null;
 };
 
 export type ProfileRow = Timestamps & {
@@ -49,6 +51,27 @@ export type ProfileRow = Timestamps & {
   email: string;
   phone: string | null;
   role: Role;
+  onboarding_completed: boolean;
+  onboarding_step: number;
+};
+
+export type SubscriptionRow = Timestamps & {
+  id: string;
+  account_id: string;
+  stripe_subscription_id: string | null;
+  stripe_price_id: string | null;
+  plan: Plan | null;
+  status: string; // statut Stripe
+  current_period_end: string | null;
+  trial_end: string | null;
+  cancel_at_period_end: boolean;
+  updated_at: string;
+};
+
+export type StripeEventRow = {
+  id: string;
+  type: string;
+  processed_at: string;
 };
 
 export type ProspectRow = Timestamps & {
@@ -128,6 +151,9 @@ export type InvoiceRow = Timestamps & {
   period: string; // ex. "2026-07"
   amount_cents: number;
   pdf_url: string | null;
+  stripe_invoice_id: string | null;
+  status: string | null;
+  hosted_invoice_url: string | null;
 };
 
 export type PaymentMethodRow = Timestamps & {
@@ -137,13 +163,34 @@ export type PaymentMethodRow = Timestamps & {
   last4: string;
   exp_month: number;
   exp_year: number;
+  stripe_payment_method_id: string | null;
+  is_default: boolean;
 };
 
 export type Database = {
   public: {
     Tables: {
-      accounts: Table<AccountRow, "email" | "accent" | "plan" | "status">;
-      profiles: Table<ProfileRow, "phone">;
+      accounts: Table<
+        AccountRow,
+        "email" | "accent" | "plan" | "status" | "stripe_customer_id" | "trial_ends_at"
+      >;
+      profiles: Table<ProfileRow, "phone" | "onboarding_completed" | "onboarding_step">;
+      subscriptions: Table<
+        SubscriptionRow,
+        | "stripe_subscription_id"
+        | "stripe_price_id"
+        | "plan"
+        | "current_period_end"
+        | "trial_end"
+        | "cancel_at_period_end"
+        | "updated_at"
+      >;
+      stripe_events: {
+        Row: StripeEventRow;
+        Insert: StripeEventRow & { processed_at?: string };
+        Update: Partial<StripeEventRow>;
+        Relationships: [];
+      };
       // account_id est renseigné par trigger (set_account_id) → optionnel à l'insert.
       prospects: Table<
         ProspectRow,
@@ -160,8 +207,11 @@ export type Database = {
         NotificationRow,
         "account_id" | "body" | "read" | "entity_type" | "entity_id"
       >;
-      invoices: Table<InvoiceRow, "pdf_url">;
-      payment_methods: Table<PaymentMethodRow>;
+      invoices: Table<
+        InvoiceRow,
+        "pdf_url" | "stripe_invoice_id" | "status" | "hosted_invoice_url"
+      >;
+      payment_methods: Table<PaymentMethodRow, "stripe_payment_method_id" | "is_default">;
     };
     Views: Record<string, never>;
     Functions: Record<string, never>;

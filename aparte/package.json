@@ -10,7 +10,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
-    "db:push": "node scripts/db-run.mjs supabase/migrations/20260705120000_init.sql supabase/migrations/20260705120100_storage.sql supabase/migrations/20260705120200_tenant_defaults.sql supabase/migrations/20260705120300_notification_targets.sql",
+    "db:push": "node scripts/db-run.mjs supabase/migrations/20260705120000_init.sql supabase/migrations/20260705120100_storage.sql supabase/migrations/20260705120200_tenant_defaults.sql supabase/migrations/20260705120300_notification_targets.sql supabase/migrations/20260705120400_billing.sql",
     "db:seed": "node scripts/db-run.mjs supabase/seed.sql"
   },
   "dependencies": {
@@ -24,6 +24,7 @@
     "next": "16.2.10",
     "react": "19.2.4",
     "react-dom": "19.2.4",
+    "stripe": "^22.3.0",
     "tailwind-merge": "^3.6.0",
     "zod": "^4.4.3",
     "zustand": "^5.0.14"
