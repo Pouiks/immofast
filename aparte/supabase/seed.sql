@@ -12,7 +12,8 @@ delete from auth.users where id in (
   '66666666-6666-6666-6666-666666666666',
   '88888888-8888-8888-8888-888888888888',
   'a9999999-9999-9999-9999-999999999999',
-  'cccccccc-cccc-cccc-cccc-cccccccccccc'
+  'cccccccc-cccc-cccc-cccc-cccccccccccc',
+  'eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee'
 );
 delete from accounts where id in (
   '11111111-1111-1111-1111-111111111111',
@@ -20,7 +21,8 @@ delete from accounts where id in (
   '55555555-5555-5555-5555-555555555555',
   '77777777-7777-7777-7777-777777777777',
   '99999999-9999-9999-9999-999999999999',
-  'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb'
+  'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
+  'dddddddd-dddd-dddd-dddd-dddddddddddd'
 );
 -- Quelques espaces clients supplémentaires (gérés depuis la console admin).
 delete from accounts where email in ('contact@horizon-immo.fr', 'hello@studionord.fr', 'admin@prestige.fr');
@@ -142,6 +144,18 @@ insert into auth.identities (id,user_id,provider_id,identity_data,provider,last_
 values (gen_random_uuid(),'a9999999-9999-9999-9999-999999999999','a9999999-9999-9999-9999-999999999999','{"sub":"a9999999-9999-9999-9999-999999999999","email":"trial@aparte.fr"}','email',now(),now(),now());
 insert into profiles (id,account_id,full_name,email,role,onboarding_completed)
 values ('a9999999-9999-9999-9999-999999999999','99999999-9999-9999-9999-999999999999','Espace Essai','trial@aparte.fr','client',true);
+
+-- Sandbox CRUD : 2e bac à sable (abonné) pour les tests CRUD/DnD en parallèle.
+insert into accounts (id, agency_name, brand_name, accent, plan, status, email)
+values ('dddddddd-dddd-dddd-dddd-dddddddddddd','Sandbox CRUD','Sandbox CRUD',array['#2563eb','#38bdf8'],'mensuel','active','crud@aparte.fr');
+insert into auth.users (instance_id,id,aud,role,email,encrypted_password,email_confirmed_at,created_at,updated_at,raw_app_meta_data,raw_user_meta_data,confirmation_token,recovery_token,email_change_token_new,email_change)
+values ('00000000-0000-0000-0000-000000000000','eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee','authenticated','authenticated','crud@aparte.fr',crypt('demodemo',gen_salt('bf')),now(),now(),now(),'{"provider":"email","providers":["email"]}','{"full_name":"Sandbox CRUD"}','','','','');
+insert into auth.identities (id,user_id,provider_id,identity_data,provider,last_sign_in_at,created_at,updated_at)
+values (gen_random_uuid(),'eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee','eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee','{"sub":"eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee","email":"crud@aparte.fr"}','email',now(),now(),now());
+insert into profiles (id,account_id,full_name,email,role,onboarding_completed)
+values ('eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee','dddddddd-dddd-dddd-dddd-dddddddddddd','Sandbox CRUD','crud@aparte.fr','client',true);
+insert into subscriptions (account_id,plan,status,current_period_end,cancel_at_period_end,updated_at)
+values ('dddddddd-dddd-dddd-dddd-dddddddddddd','mensuel','active','2099-01-01T00:00:00Z',false,now());
 
 -- Upgrade : l'abonnement (mensuel) est créé par le test via l'API Stripe.
 insert into accounts (id, agency_name, brand_name, accent, plan, status, email)

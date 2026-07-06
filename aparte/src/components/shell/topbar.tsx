@@ -53,7 +53,10 @@ export function Topbar() {
           >
             <Bell size={18} strokeWidth={2.1} />
             {unread > 0 && (
-              <span className="absolute -right-[3px] -top-[3px] flex h-4 min-w-4 items-center justify-center rounded-full border-2 border-surface bg-danger px-1 text-[9.5px] font-extrabold text-white">
+              <span
+                data-testid="notif-badge"
+                className="absolute -right-[3px] -top-[3px] flex h-4 min-w-4 items-center justify-center rounded-full border-2 border-surface bg-danger px-1 text-[9.5px] font-extrabold text-white"
+              >
                 {unread}
               </span>
             )}

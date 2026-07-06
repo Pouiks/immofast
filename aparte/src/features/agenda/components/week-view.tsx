@@ -49,6 +49,7 @@ export function WeekView({
               return (
                 <div
                   key={day.toISOString() + hour}
+                  data-testid={`acell-${format(day, "yyyy-MM-dd")}-${hour}`}
                   onDragOver={(e) => e.preventDefault()}
                   onDrop={() => {
                     if (dragId.current) onMove(dragId.current, atHour(day, hour).toISOString());
@@ -60,6 +61,7 @@ export function WeekView({
                     <div
                       key={v.id}
                       draggable
+                      data-testid={`aevt-${v.id}`}
                       onDragStart={() => (dragId.current = v.id)}
                       onClick={() => onOpen(v.id)}
                       className="mb-1 cursor-grab rounded-md border-l-[3px] border-accent bg-accent-soft px-1.5 py-1 active:cursor-grabbing"

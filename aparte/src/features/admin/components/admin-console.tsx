@@ -36,7 +36,11 @@ export function AdminConsole({ excludeAccountId }: { excludeAccountId: string })
         {isLoading && <EmptyState>Chargement…</EmptyState>}
         {!isLoading && accounts.length === 0 && <EmptyState>Aucun espace client.</EmptyState>}
         {accounts.map((a) => (
-          <div key={a.id} className="flex items-center gap-3 border-b border-line-soft py-[15px] last:border-0">
+          <div
+            key={a.id}
+            data-testid={`account-${a.email ?? a.id}`}
+            className="flex items-center gap-3 border-b border-line-soft py-[15px] last:border-0"
+          >
             <Avatar name={a.agency_name} size={38} radius={10} colors={["#eef0ff", "#2563eb"]} />
             <div className="min-w-0 flex-1">
               <div className="text-[13.5px] font-bold">{a.agency_name}</div>

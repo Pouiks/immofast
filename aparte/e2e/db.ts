@@ -15,6 +15,7 @@ function loadEnv(): Record<string, string> {
 }
 
 const env = loadEnv();
+export const PROVISION_SECRET = env.PROVISION_SECRET ?? "";
 export const admin: SupabaseClient = createClient(
   env.NEXT_PUBLIC_SUPABASE_URL,
   env.SUPABASE_SECRET_KEY,
@@ -25,6 +26,7 @@ export const admin: SupabaseClient = createClient(
 export const ACCOUNTS = {
   camille: "11111111-1111-1111-1111-111111111111",
   sandbox: "77777777-7777-7777-7777-777777777777",
+  sandbox2: "dddddddd-dddd-dddd-dddd-dddddddddddd",
   trial: "99999999-9999-9999-9999-999999999999",
 } as const;
 

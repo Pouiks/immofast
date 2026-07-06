@@ -34,6 +34,7 @@ export function KanbanView() {
         return (
           <div
             key={stage}
+            data-testid={`kcol-${stage}`}
             onDragOver={(e) => e.preventDefault()}
             onDrop={() => onDrop(stage)}
             className="w-[238px] flex-none rounded-card bg-[#efeef3] p-3 transition"
@@ -53,6 +54,7 @@ export function KanbanView() {
                   onDragStart={() => (dragId.current = p.id)}
                 />
               ))}
+              {/* zone de dépôt même quand la colonne est vide */}
             </div>
           </div>
         );
@@ -73,6 +75,7 @@ function KanbanCard({
   return (
     <div
       draggable
+      data-testid={`kcard-${p.id}`}
       onDragStart={onDragStart}
       onClick={onClick}
       className="cursor-pointer rounded-xl border border-black/[.04] bg-surface p-3 transition hover:-translate-y-[3px] hover:shadow-lift active:cursor-grabbing"
