@@ -2,13 +2,26 @@
 
 import { useState } from "react";
 import { X } from "lucide-react";
+import { format } from "date-fns";
+import { fr } from "date-fns/locale";
 import { useUIStore } from "@/stores/ui-store";
 import { useAccount } from "./account-context";
 import { useInvoices, usePaymentMethod, useUpdateProfile, useUpdateAccount } from "./hooks";
+import { useSubscription } from "@/features/billing/hooks";
+import { startCheckout, openBillingPortal } from "@/features/billing/actions";
 import { signOut } from "@/features/auth/actions";
-import { Overlay, Avatar, Button, Field, Input } from "@/components/ui";
+import { Overlay, Avatar, Button, Field, Input, EmptyState } from "@/components/ui";
 import { cn, initials } from "@/lib/utils";
 import { ROLE_LABELS } from "@/types/domain";
+
+const SUB_STATUS: Record<string, { label: string; tone: "success" | "warning" | "danger" }> = {
+  active: { label: "Actif", tone: "success" },
+  trialing: { label: "Essai en cours", tone: "success" },
+  past_due: { label: "Paiement en retard", tone: "warning" },
+  unpaid: { label: "Impayé", tone: "danger" },
+  canceled: { label: "Résilié", tone: "danger" },
+  incomplete: { label: "Incomplet", tone: "warning" },
+};
 
 type Tab = "profil" | "abonnement" | "facturation" | "marque";
 
@@ -132,9 +145,36 @@ function ProfilTab() {
 }
 
 function AbonnementTab() {
-  const { account } = useAccount();
-  const openModal = useUIStore((s) => s.openModal);
-  const isAnnual = account.plan === "annuel";
+  const { data: sub, isLoading } = useSubscription();
+  if (isLoading) return <EmptyState>Chargement…</EmptyState>;
+
+  // Aucun abonnement → proposer de souscrire (Stripe Checkout).
+  if (!sub) {
+    return (
+      <div>
+        <p className="mb-4 text-[13px] font-semibold text-muted">
+          Activez votre espace en choisissant une formule. Le paiement est sécurisé par Stripe.
+        </p>
+        <div className="flex flex-col gap-2.5">
+          <form action={startCheckout}>
+            <input type="hidden" name="plan" value="mensuel" />
+            <Button type="submit" className="w-full justify-between">
+              Formule mensuelle <span>49 € / mois</span>
+            </Button>
+          </form>
+          <form action={startCheckout}>
+            <input type="hidden" name="plan" value="annuel" />
+            <Button type="submit" variant="outline" className="w-full justify-between">
+              Formule annuelle (‑10 %) <span>529 € / an</span>
+            </Button>
+          </form>
+        </div>
+      </div>
+    );
+  }
+
+  const isAnnual = sub.plan === "annuel";
+  const status = SUB_STATUS[sub.status] ?? { label: sub.status, tone: "warning" as const };
 
   return (
     <div>
@@ -146,25 +186,23 @@ function AbonnementTab() {
               Pro · {isAnnual ? "Annuel" : "Mensuel"}
             </div>
           </div>
-          <span className="rounded-full bg-white/20 px-2.5 py-1 text-[11px] font-extrabold">Actif</span>
+          <span className="rounded-full bg-white/20 px-2.5 py-1 text-[11px] font-extrabold">
+            {status.label}
+          </span>
         </div>
-        <div className="mt-3.5 text-[13px] font-semibold opacity-90">
-          {isAnnual ? "529,20 € / an" : "49 € / mois"} ·{" "}
-          {isAnnual ? "renouvellement le 5 juillet 2027" : "prochaine échéance le 5 août 2026"}
-        </div>
+        {sub.current_period_end && (
+          <div className="mt-3.5 text-[13px] font-semibold opacity-90">
+            {sub.cancel_at_period_end ? "Se termine le " : "Renouvellement le "}
+            {format(new Date(sub.current_period_end), "d MMMM yyyy", { locale: fr })}
+          </div>
+        )}
       </div>
-      {isAnnual ? (
-        <div className="rounded-[11px] bg-[#eafaf1] px-3.5 py-3 text-[12.5px] font-bold text-success">
-          Formule annuelle active — vous économisez 10 % par rapport au mensuel.
-        </div>
-      ) : (
-        <div className="flex gap-2.5">
-          <Button onClick={() => openModal({ type: "plan", mode: "create" })}>
-            Passer à l'annuel (‑10 %)
-          </Button>
-          <Button variant="danger">Résilier</Button>
-        </div>
-      )}
+      <form action={openBillingPortal}>
+        <Button type="submit">Gérer l'abonnement</Button>
+      </form>
+      <p className="mt-2.5 text-[11.5px] font-semibold text-ghost">
+        Changer de formule, mettre à jour la carte ou résilier via l'espace de facturation sécurisé.
+      </p>
     </div>
   );
 }
@@ -177,30 +215,53 @@ function FacturationTab() {
     <div>
       <div className="mb-[18px] flex items-center gap-3 rounded-xl bg-app px-4 py-3.5">
         <div className="flex h-[30px] w-11 items-center justify-center rounded-md bg-[#1a1a24] text-[11px] font-extrabold text-white">
-          {pm?.brand?.toUpperCase() ?? "VISA"}
+          {(pm?.brand ?? "carte").slice(0, 4).toUpperCase()}
         </div>
         <div className="flex-1">
           <div className="text-[13px] font-bold">
             {pm ? `${cap(pm.brand)} •••• ${pm.last4}` : "Aucun moyen de paiement"}
           </div>
-          {pm && (
+          {pm ? (
             <div className="text-[11.5px] font-semibold text-[#8a8a9a]">
               Expire {String(pm.exp_month).padStart(2, "0")}/{pm.exp_year}
             </div>
+          ) : (
+            <div className="text-[11.5px] font-semibold text-[#8a8a9a]">
+              Ajoutez une carte via l'espace sécurisé
+            </div>
           )}
         </div>
-        <button className="text-xs font-bold text-accent">Modifier</button>
+        <form action={openBillingPortal}>
+          <button type="submit" className="text-xs font-bold text-accent">
+            {pm ? "Modifier" : "Ajouter"}
+          </button>
+        </form>
       </div>
       <div className="mb-2.5 text-[11px] font-bold uppercase tracking-wider text-ghost">Factures</div>
-      {invoices.map((inv) => (
-        <div key={inv.id} className="flex items-center justify-between border-b border-line py-3">
-          <div className="text-[13px] font-semibold">{formatPeriod(inv.period)}</div>
-          <div className="flex items-center gap-3.5">
-            <span className="text-[13px] font-bold">{(inv.amount_cents / 100).toFixed(2)} €</span>
-            <button className="text-xs font-bold text-accent">PDF</button>
+      {invoices.length === 0 ? (
+        <p className="py-2 text-[12.5px] font-semibold italic text-faint">
+          Aucune facture pour le moment.
+        </p>
+      ) : (
+        invoices.map((inv) => (
+          <div key={inv.id} className="flex items-center justify-between border-b border-line py-3">
+            <div className="text-[13px] font-semibold">{formatPeriod(inv.period)}</div>
+            <div className="flex items-center gap-3.5">
+              <span className="text-[13px] font-bold">{(inv.amount_cents / 100).toFixed(2)} €</span>
+              {(inv.hosted_invoice_url || inv.pdf_url) && (
+                <a
+                  href={inv.hosted_invoice_url ?? inv.pdf_url ?? "#"}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs font-bold text-accent"
+                >
+                  PDF
+                </a>
+              )}
+            </div>
           </div>
-        </div>
-      ))}
+        ))
+      )}
     </div>
   );
 }

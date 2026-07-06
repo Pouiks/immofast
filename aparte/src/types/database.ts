@@ -187,7 +187,7 @@ export type Database = {
       >;
       stripe_events: {
         Row: StripeEventRow;
-        Insert: StripeEventRow & { processed_at?: string };
+        Insert: Omit<StripeEventRow, "processed_at"> & { processed_at?: string };
         Update: Partial<StripeEventRow>;
         Relationships: [];
       };

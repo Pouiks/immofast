@@ -129,10 +129,5 @@ insert into notifications (account_id, kind, title, body, read, entity_type, ent
  ('11111111-1111-1111-1111-111111111111', 'document', 'Document reçu',     'Julie Martin a déposé sa simulation de prêt',      true,  'prospect', '00000000-0000-0000-0000-0000000000a4');
 
 -- ─── Facturation ───────────────────────────────────────────────────────────
-insert into invoices (account_id, period, amount_cents) values
- ('11111111-1111-1111-1111-111111111111', '2026-07', 4900),
- ('11111111-1111-1111-1111-111111111111', '2026-06', 4900),
- ('11111111-1111-1111-1111-111111111111', '2026-05', 4900);
-
-insert into payment_methods (account_id, brand, last4, exp_month, exp_year) values
- ('11111111-1111-1111-1111-111111111111', 'visa', '4242', 9, 28);
+-- Aucune donnée mockée : factures et moyens de paiement proviennent désormais
+-- de Stripe (synchronisés par les webhooks). Vides tant qu'aucun abonnement.

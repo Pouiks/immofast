@@ -14,10 +14,16 @@ test.describe("Compte", () => {
     await expect(page.getByRole("button", { name: "Marque blanche" })).toBeVisible();
   });
 
-  test("facturation : moyen de paiement et factures", async ({ page }) => {
+  test("abonnement : propose de souscrire (Stripe)", async ({ page }) => {
+    await page.getByRole("button", { name: "Abonnement" }).click();
+    await expect(page.getByRole("button", { name: /Formule mensuelle/ })).toBeVisible();
+    await expect(page.getByRole("button", { name: /Formule annuelle/ })).toBeVisible();
+  });
+
+  test("facturation : états vides sans données Stripe", async ({ page }) => {
     await page.getByRole("button", { name: "Facturation" }).click();
-    await expect(page.getByText("•••• 4242")).toBeVisible();
-    await expect(page.getByText("Juillet 2026")).toBeVisible();
+    await expect(page.getByText("Aucun moyen de paiement")).toBeVisible();
+    await expect(page.getByText("Aucune facture pour le moment.")).toBeVisible();
   });
 
   test("marque blanche : mise à jour live de la sidebar", async ({ page }) => {
