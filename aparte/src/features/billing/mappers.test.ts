@@ -79,7 +79,7 @@ describe("mapInvoice", () => {
 
 describe("mapPaymentMethod", () => {
   it("mappe une carte", () => {
-    const pm = { id: "pm_1", card: { brand: "visa", last4: "4242", exp_month: 9, exp_year: 2028 } };
+    const pm = { id: "pm_1", type: "card", card: { brand: "visa", last4: "4242", exp_month: 9, exp_year: 2028 } };
     expect(mapPaymentMethod(pm, "acc_1")).toMatchObject({
       account_id: "acc_1",
       stripe_payment_method_id: "pm_1",
@@ -88,6 +88,17 @@ describe("mapPaymentMethod", () => {
       exp_month: 9,
       exp_year: 2028,
       is_default: true,
+    });
+  });
+
+  it("mappe un moyen Stripe Link (sans carte exposée)", () => {
+    const pm = { id: "pm_link", type: "link" };
+    expect(mapPaymentMethod(pm, "acc_1")).toMatchObject({
+      stripe_payment_method_id: "pm_link",
+      brand: "Link",
+      last4: "",
+      exp_month: 0,
+      exp_year: 0,
     });
   });
 });

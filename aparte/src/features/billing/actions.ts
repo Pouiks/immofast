@@ -29,8 +29,8 @@ export async function startCheckout(formData: FormData) {
     mode: "subscription",
     customer,
     line_items: [{ price, quantity: 1 }],
-    success_url: `${env.appUrl}/dashboard?checkout=success`,
-    cancel_url: `${env.appUrl}/subscribe?checkout=cancel`,
+    success_url: `${env.appUrl}/api/stripe/return?to=/dashboard`,
+    cancel_url: `${env.appUrl}/dashboard`,
     subscription_data: { metadata: { account_id: user.account.id } },
     allow_promotion_codes: true,
   });
@@ -48,7 +48,7 @@ export async function openBillingPortal() {
   const stripe = getStripe();
   const session = await stripe.billingPortal.sessions.create({
     customer,
-    return_url: `${env.appUrl}/dashboard`,
+    return_url: `${env.appUrl}/api/stripe/return?to=/dashboard`,
   });
   redirect(session.url);
 }

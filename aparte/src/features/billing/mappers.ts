@@ -98,6 +98,7 @@ export function mapInvoice(inv: StripeInvoiceLike, accountId: string): InvoiceUp
 
 export interface StripePmLike {
   id: string;
+  type?: string;
   card?: { brand?: string; last4?: string; exp_month?: number; exp_year?: number } | null;
 }
 
@@ -112,13 +113,17 @@ export interface PaymentMethodUpsert {
 }
 
 export function mapPaymentMethod(pm: StripePmLike, accountId: string): PaymentMethodUpsert {
+  const card = pm.card;
+  // Link / Apple Pay / wallets n'ont pas toujours de carte exposée → on garde
+  // un libellé de type plutôt qu'un faux numéro. last4 vide = pas de « •••• ».
+  const brand = card?.brand ?? (pm.type === "link" ? "Link" : pm.type ?? "carte");
   return {
     account_id: accountId,
     stripe_payment_method_id: pm.id,
-    brand: pm.card?.brand ?? "card",
-    last4: pm.card?.last4 ?? "••••",
-    exp_month: pm.card?.exp_month ?? 0,
-    exp_year: pm.card?.exp_year ?? 0,
+    brand,
+    last4: card?.last4 ?? "",
+    exp_month: card?.exp_month ?? 0,
+    exp_year: card?.exp_year ?? 0,
     is_default: true,
   };
 }

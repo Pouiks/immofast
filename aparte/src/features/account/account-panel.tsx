@@ -219,15 +219,19 @@ function FacturationTab() {
         </div>
         <div className="flex-1">
           <div className="text-[13px] font-bold">
-            {pm ? `${cap(pm.brand)} •••• ${pm.last4}` : "Aucun moyen de paiement"}
+            {!pm
+              ? "Aucun moyen de paiement"
+              : pm.last4
+                ? `${cap(pm.brand)} •••• ${pm.last4}`
+                : cap(pm.brand)}
           </div>
-          {pm ? (
+          {pm && pm.last4 && pm.exp_year ? (
             <div className="text-[11.5px] font-semibold text-[#8a8a9a]">
               Expire {String(pm.exp_month).padStart(2, "0")}/{pm.exp_year}
             </div>
           ) : (
             <div className="text-[11.5px] font-semibold text-[#8a8a9a]">
-              Ajoutez une carte via l'espace sécurisé
+              {pm ? "Géré via l'espace sécurisé" : "Ajoutez une carte via l'espace sécurisé"}
             </div>
           )}
         </div>
