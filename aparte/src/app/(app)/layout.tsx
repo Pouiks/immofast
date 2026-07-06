@@ -9,19 +9,22 @@ import { Topbar } from "@/components/shell/topbar";
 import { AccountPanel } from "@/features/account/account-panel";
 import { Overlays } from "@/components/shell/overlays";
 import { OnboardingLauncher } from "@/features/onboarding/onboarding-launcher";
+import { Paywall } from "@/features/billing/paywall";
 
 /**
  * Shell CRM (client & invité). Garde de rôle :
  *  - non authentifié → /login
  *  - admin SaaS → console dédiée /admin (pas d'accès CRM)
+ * Essai expiré / espace suspendu → le CRM s'affiche, flouté, sous un paywall
+ * (rappelle à l'utilisateur ce qu'il retrouve en s'abonnant).
  */
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const user = await getCurrentUser();
   if (!user) redirect("/login");
   if (user.role === "admin") redirect("/admin");
 
-  // Essai expiré sans abonnement (ou espace suspendu) → paywall.
-  if (!hasCrmAccess(await getAccessState(user))) redirect("/subscribe");
+  const access = await getAccessState(user);
+  const locked = !hasCrmAccess(access);
 
   return (
     <ThemeProvider accent={user.account.accent}>
@@ -36,6 +39,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         <AccountPanel />
         <Overlays />
         <OnboardingLauncher />
+        {locked && <Paywall access={access} brandName={user.account.brandName} />}
       </AccountProvider>
     </ThemeProvider>
   );
