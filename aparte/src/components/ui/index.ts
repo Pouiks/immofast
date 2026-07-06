@@ -1,4 +1,5 @@
 export { Button, type ButtonProps } from "./button";
+export { SubmitButton, SubmitTextButton } from "./submit-button";
 export { Avatar, type AvatarProps } from "./avatar";
 export { Badge, type Tone } from "./badge";
 export { Card } from "./card";

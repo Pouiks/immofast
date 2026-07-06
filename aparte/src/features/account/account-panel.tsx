@@ -10,7 +10,7 @@ import { useInvoices, usePaymentMethod, useUpdateProfile, useUpdateAccount } fro
 import { useSubscription } from "@/features/billing/hooks";
 import { startCheckout, openBillingPortal } from "@/features/billing/actions";
 import { signOut } from "@/features/auth/actions";
-import { Overlay, Avatar, Button, Field, Input, EmptyState } from "@/components/ui";
+import { Overlay, Avatar, Button, SubmitButton, SubmitTextButton, Field, Input, EmptyState } from "@/components/ui";
 import { cn, initials } from "@/lib/utils";
 import { ROLE_LABELS } from "@/types/domain";
 
@@ -158,15 +158,19 @@ function AbonnementTab() {
         <div className="flex flex-col gap-2.5">
           <form action={startCheckout}>
             <input type="hidden" name="plan" value="mensuel" />
-            <Button type="submit" className="w-full justify-between">
+            <SubmitButton pendingLabel="Redirection vers le paiement…" className="w-full justify-between">
               Formule mensuelle <span>49 € / mois</span>
-            </Button>
+            </SubmitButton>
           </form>
           <form action={startCheckout}>
             <input type="hidden" name="plan" value="annuel" />
-            <Button type="submit" variant="outline" className="w-full justify-between">
+            <SubmitButton
+              variant="outline"
+              pendingLabel="Redirection vers le paiement…"
+              className="w-full justify-between"
+            >
               Formule annuelle (‑10 %) <span>529 € / an</span>
-            </Button>
+            </SubmitButton>
           </form>
         </div>
       </div>
@@ -198,7 +202,9 @@ function AbonnementTab() {
         )}
       </div>
       <form action={openBillingPortal}>
-        <Button type="submit">Gérer l'abonnement</Button>
+        <SubmitButton pendingLabel="Ouverture de l'espace sécurisé…">
+          Gérer l'abonnement
+        </SubmitButton>
       </form>
       <p className="mt-2.5 text-[11.5px] font-semibold text-ghost">
         Changer de formule, mettre à jour la carte ou résilier via l'espace de facturation sécurisé.
@@ -236,9 +242,9 @@ function FacturationTab() {
           )}
         </div>
         <form action={openBillingPortal}>
-          <button type="submit" className="text-xs font-bold text-accent">
+          <SubmitTextButton pendingLabel="Ouverture…">
             {pm ? "Modifier" : "Ajouter"}
-          </button>
+          </SubmitTextButton>
         </form>
       </div>
       <div className="mb-2.5 text-[11px] font-bold uppercase tracking-wider text-ghost">Factures</div>

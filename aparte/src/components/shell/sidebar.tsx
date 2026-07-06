@@ -1,9 +1,9 @@
 "use client";
 
-import Link from "next/link";
+import Link, { useLinkStatus } from "next/link";
 import { usePathname } from "next/navigation";
-import { ChevronRight, Target } from "lucide-react";
-import { CRM_NAV } from "@/config/nav";
+import { ChevronRight, Target, Loader2 } from "lucide-react";
+import { CRM_NAV, type NavItem as NavItemConfig } from "@/config/nav";
 import { useUIStore } from "@/stores/ui-store";
 import { useAccount } from "@/features/account/account-context";
 import { initials } from "@/lib/utils";
@@ -35,23 +35,9 @@ export function Sidebar({ goalDone = 3, goalTarget = 5 }: { goalDone?: number; g
 
       {/* Navigation */}
       <nav className="flex flex-col gap-1">
-        {CRM_NAV.map((item) => {
-          const active = pathname.startsWith(item.href);
-          const Icon = item.icon;
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={cn(
-                "flex items-center gap-2.5 rounded-[11px] px-3 py-[11px] font-bold transition",
-                active ? "bg-accent text-white" : "text-muted hover:bg-app",
-              )}
-            >
-              <Icon size={18} strokeWidth={2.1} />
-              {item.label}
-            </Link>
-          );
-        })}
+        {CRM_NAV.map((item) => (
+          <NavItem key={item.href} item={item} active={pathname.startsWith(item.href)} />
+        ))}
       </nav>
 
       {/* Objectif mensuel */}
@@ -89,4 +75,28 @@ export function Sidebar({ goalDone = 3, goalTarget = 5 }: { goalDone?: number; g
       </button>
     </aside>
   );
+}
+
+/** Élément de nav avec retour de chargement pendant la navigation. */
+function NavItem({ item, active }: { item: NavItemConfig; active: boolean }) {
+  const Icon = item.icon;
+  return (
+    <Link
+      href={item.href}
+      className={cn(
+        "flex items-center gap-2.5 rounded-[11px] px-3 py-[11px] font-bold transition",
+        active ? "bg-accent text-white" : "text-muted hover:bg-app",
+      )}
+    >
+      <Icon size={18} strokeWidth={2.1} />
+      {item.label}
+      <NavPending />
+    </Link>
+  );
+}
+
+/** Spinner affiché tant que la navigation vers ce lien est en cours (useLinkStatus). */
+function NavPending() {
+  const { pending } = useLinkStatus();
+  return pending ? <Loader2 size={15} strokeWidth={2.4} className="ml-auto animate-spin" /> : null;
 }
