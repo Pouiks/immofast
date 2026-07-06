@@ -88,6 +88,18 @@
 
 * { box-sizing: border-box; }
 
+/*
+ * Tailwind v4 met les boutons en cursor:default. On restaure le curseur
+ * « main » sur tout élément cliquable (sauf désactivé) pour une sensation
+ * cohérente avec les liens (sidebar, topbar, actions).
+ */
+button:not(:disabled),
+[role="button"]:not(:disabled),
+summary,
+label:has(> input:is([type="checkbox"], [type="radio"], [type="file"])) {
+  cursor: pointer;
+}
+
 body {
   background: var(--app);
   color: var(--ink);
