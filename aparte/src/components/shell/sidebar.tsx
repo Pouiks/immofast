@@ -2,23 +2,22 @@
 
 import Link, { useLinkStatus } from "next/link";
 import { usePathname } from "next/navigation";
-import { ChevronRight, Target, Loader2 } from "lucide-react";
+import { ChevronRight, Loader2 } from "lucide-react";
 import { CRM_NAV, type NavItem as NavItemConfig } from "@/config/nav";
 import { useUIStore } from "@/stores/ui-store";
 import { useAccount } from "@/features/account/account-context";
+import { SidebarTrialCard } from "@/features/billing/sidebar-trial-card";
 import { initials } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 import { ROLE_LABELS } from "@/types/domain";
 
-export function Sidebar({ goalDone = 3, goalTarget = 5 }: { goalDone?: number; goalTarget?: number }) {
+export function Sidebar() {
   const pathname = usePathname();
-  const openModal = useUIStore((s) => s.openModal);
   const openAccount = useUIStore((s) => s.openAccount);
   const { account, profile } = useAccount();
   const brandName = account.brandName;
   const fullName = profile.fullName;
   const role = profile.role;
-  const pct = Math.min(100, Math.round((goalDone / Math.max(1, goalTarget)) * 100));
 
   return (
     <aside className="flex w-[236px] flex-none flex-col gap-6 border-r border-black/[.07] bg-surface px-4 py-[22px]">
@@ -40,29 +39,13 @@ export function Sidebar({ goalDone = 3, goalTarget = 5 }: { goalDone?: number; g
         ))}
       </nav>
 
-      {/* Objectif mensuel */}
-      <button
-        onClick={() => openModal({ type: "objectif", mode: "edit" })}
-        className="mt-auto rounded-card bg-app p-[15px] text-center"
-      >
-        <div className="mb-1 flex items-center justify-center gap-1.5 text-xs font-bold">
-          Objectif mensuel <Target size={12} strokeWidth={2.4} className="text-faint" />
-        </div>
-        <div className="mb-2.5 text-[11px] font-semibold text-faint">
-          {goalDone} ventes sur {goalTarget}
-        </div>
-        <div className="h-[7px] overflow-hidden rounded-[5px] bg-[#e4e3ea]">
-          <div
-            className="h-full rounded-[5px] bg-gradient-to-r from-accent to-accent-2"
-            style={{ width: `${pct}%` }}
-          />
-        </div>
-      </button>
+      {/* Période d'essai / abonnement */}
+      <SidebarTrialCard className="mt-auto" />
 
       {/* Profil */}
       <button
         data-tour="sidebar-profile"
-        onClick={openAccount}
+        onClick={() => openAccount()}
         className="-mx-1.5 flex items-center gap-2.5 rounded-[10px] border-t border-line px-1.5 py-2.5 text-left hover:bg-hover"
       >
         <div className="flex size-9 flex-none items-center justify-center rounded-[11px] bg-gradient-to-br from-[#ff8a5b] to-[#ff5b8a] font-extrabold text-white">

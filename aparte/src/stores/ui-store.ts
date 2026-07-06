@@ -46,9 +46,12 @@ interface UIState {
   notifOpen: boolean;
   toggleNotif: () => void;
   accountOpen: boolean;
-  openAccount: () => void;
+  accountTab: AccountTab;
+  openAccount: (tab?: AccountTab) => void;
   closeAccount: () => void;
 }
+
+export type AccountTab = "profil" | "abonnement" | "facturation" | "marque";
 
 export const useUIStore = create<UIState>((set) => ({
   selectedProspectId: null,
@@ -68,6 +71,7 @@ export const useUIStore = create<UIState>((set) => ({
   notifOpen: false,
   toggleNotif: () => set((s) => ({ notifOpen: !s.notifOpen })),
   accountOpen: false,
-  openAccount: () => set({ accountOpen: true, notifOpen: false }),
+  accountTab: "profil",
+  openAccount: (tab = "profil") => set({ accountOpen: true, accountTab: tab, notifOpen: false }),
   closeAccount: () => set({ accountOpen: false }),
 }));

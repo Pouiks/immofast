@@ -8,11 +8,13 @@
 -- Nettoyage (les suppressions cascadent sur profil + données CRM).
 delete from auth.users where id in (
   '22222222-2222-2222-2222-222222222222',
-  '44444444-4444-4444-4444-444444444444'
+  '44444444-4444-4444-4444-444444444444',
+  '66666666-6666-6666-6666-666666666666'
 );
 delete from accounts where id in (
   '11111111-1111-1111-1111-111111111111',
-  '33333333-3333-3333-3333-333333333333'
+  '33333333-3333-3333-3333-333333333333',
+  '55555555-5555-5555-5555-555555555555'
 );
 -- Quelques espaces clients supplémentaires (gérés depuis la console admin).
 delete from accounts where email in ('contact@horizon-immo.fr', 'hello@studionord.fr', 'admin@prestige.fr');
@@ -88,6 +90,29 @@ insert into accounts (agency_name, brand_name, accent, plan, status, email) valu
  ('Agence Horizon',      'Agence Horizon',      array['#2563eb','#38bdf8'], 'annuel',  'active',          'contact@horizon-immo.fr'),
  ('Studio Nord',         'Studio Nord',         array['#2563eb','#38bdf8'], 'mensuel', 'active',          'hello@studionord.fr'),
  ('Prestige Immobilier', 'Prestige Immobilier', array['#2563eb','#38bdf8'], 'mensuel', 'pending_payment', 'admin@prestige.fr');
+
+-- ─── Fixture : espace verrouillé (essai expiré, sans abonnement) ───────────
+-- Sert à tester le gating. Login : locked@aparte.fr / demodemo → /subscribe.
+insert into accounts (id, agency_name, brand_name, accent, plan, status, email, trial_ends_at)
+values ('55555555-5555-5555-5555-555555555555', 'Espace Verrouillé', 'Espace Verrouillé',
+        array['#2563eb','#38bdf8'], 'mensuel', 'active', 'locked@aparte.fr', '2020-01-01T00:00:00Z');
+
+insert into auth.users (
+  instance_id, id, aud, role, email, encrypted_password, email_confirmed_at,
+  created_at, updated_at, raw_app_meta_data, raw_user_meta_data,
+  confirmation_token, recovery_token, email_change_token_new, email_change
+) values (
+  '00000000-0000-0000-0000-000000000000', '66666666-6666-6666-6666-666666666666',
+  'authenticated', 'authenticated', 'locked@aparte.fr', crypt('demodemo', gen_salt('bf')),
+  now(), now(), now(), '{"provider":"email","providers":["email"]}', '{"full_name":"Espace Verrouillé"}',
+  '', '', '', ''
+);
+insert into auth.identities (id, user_id, provider_id, identity_data, provider, last_sign_in_at, created_at, updated_at)
+values (gen_random_uuid(), '66666666-6666-6666-6666-666666666666', '66666666-6666-6666-6666-666666666666',
+        '{"sub":"66666666-6666-6666-6666-666666666666","email":"locked@aparte.fr"}', 'email', now(), now(), now());
+insert into profiles (id, account_id, full_name, email, phone, role, onboarding_completed)
+values ('66666666-6666-6666-6666-666666666666', '55555555-5555-5555-5555-555555555555',
+        'Espace Verrouillé', 'locked@aparte.fr', null, 'client', true);
 
 -- ─── Prospects ─────────────────────────────────────────────────────────────
 insert into prospects (id, account_id, full_name, phone, email, address, budget_amount, search_label, stage) values

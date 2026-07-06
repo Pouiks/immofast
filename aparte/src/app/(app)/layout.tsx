@@ -1,5 +1,7 @@
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/features/auth/current-user";
+import { getAccessState } from "@/features/billing/access-server";
+import { hasCrmAccess } from "@/features/billing/access";
 import { ThemeProvider } from "@/components/theme-provider";
 import { AccountProvider } from "@/features/account/account-context";
 import { Sidebar } from "@/components/shell/sidebar";
@@ -7,7 +9,6 @@ import { Topbar } from "@/components/shell/topbar";
 import { AccountPanel } from "@/features/account/account-panel";
 import { Overlays } from "@/components/shell/overlays";
 import { OnboardingLauncher } from "@/features/onboarding/onboarding-launcher";
-import { TrialBanner } from "@/features/billing/trial-banner";
 
 /**
  * Shell CRM (client & invité). Garde de rôle :
@@ -19,6 +20,9 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   if (!user) redirect("/login");
   if (user.role === "admin") redirect("/admin");
 
+  // Essai expiré sans abonnement (ou espace suspendu) → paywall.
+  if (!hasCrmAccess(await getAccessState(user))) redirect("/subscribe");
+
   return (
     <ThemeProvider accent={user.account.accent}>
       <AccountProvider initialUser={user}>
@@ -26,7 +30,6 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           <Sidebar />
           <div className="flex min-w-0 flex-1 flex-col">
             <Topbar />
-            <TrialBanner />
             <main className="flex-1 overflow-y-auto px-7 py-[26px]">{children}</main>
           </div>
         </div>

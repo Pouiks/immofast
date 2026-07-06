@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { X } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -38,9 +38,14 @@ const TAB_TITLES: Record<Tab, string> = {
  * l'invité ne voit que « Profil » (facturation gérée par le titulaire).
  */
 export function AccountPanel() {
-  const { accountOpen, closeAccount } = useUIStore();
+  const { accountOpen, accountTab, closeAccount } = useUIStore();
   const { profile } = useAccount();
-  const [tab, setTab] = useState<Tab>("profil");
+  const [tab, setTab] = useState<Tab>(accountTab);
+
+  // À chaque ouverture, se positionne sur l'onglet demandé (ex. « S'abonner »).
+  useEffect(() => {
+    if (accountOpen) setTab(accountTab);
+  }, [accountOpen, accountTab]);
 
   if (!accountOpen) return null;
   const canBilling = profile.role === "client";
