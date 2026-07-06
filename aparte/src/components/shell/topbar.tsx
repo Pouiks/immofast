@@ -32,7 +32,10 @@ export function Topbar() {
     <header className="flex h-[70px] flex-none items-center justify-between border-b border-black/[.07] bg-surface px-7">
       <div className="text-[19px] font-extrabold tracking-tight">{item.title}</div>
       <div className="flex items-center gap-3">
-        <div className="flex w-[240px] items-center gap-2 rounded-[11px] bg-app px-3 py-2.5 text-faint">
+        <div
+          data-tour="topbar-search"
+          className="flex w-[240px] items-center gap-2 rounded-[11px] bg-app px-3 py-2.5 text-faint"
+        >
           <Search size={16} strokeWidth={2.2} />
           <input
             value={query}
@@ -42,7 +45,7 @@ export function Topbar() {
           />
         </div>
 
-        <div className="relative">
+        <div className="relative" data-tour="topbar-notif">
           <button
             onClick={toggleNotif}
             className="relative flex size-10 items-center justify-center rounded-[11px] bg-app text-muted"
@@ -58,7 +61,7 @@ export function Topbar() {
           {notifOpen && <NotifPanel />}
         </div>
 
-        <Button onClick={onCreate}>
+        <Button data-tour="topbar-create" onClick={onCreate}>
           <Plus size={16} strokeWidth={2.6} />
           {item.createLabel}
         </Button>

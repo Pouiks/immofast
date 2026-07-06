@@ -21,6 +21,9 @@ export const env = {
   stripeWebhookSecret: process.env.STRIPE_WEBHOOK_SECRET,
   stripePriceMensuel: process.env.STRIPE_PRICE_MENSUEL,
   stripePriceAnnuel: process.env.STRIPE_PRICE_ANNUEL,
+
+  // Secret partagé pour l'API de provisioning appelée par le site vitrine.
+  provisionSecret: process.env.PROVISION_SECRET,
 } as const;
 
 export const hasSupabaseEnv = Boolean(env.supabaseUrl && env.supabaseAnonKey);

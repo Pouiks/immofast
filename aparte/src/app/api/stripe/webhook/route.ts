@@ -3,6 +3,8 @@ import type Stripe from "stripe";
 import { getStripe } from "@/lib/stripe/server";
 import { env } from "@/lib/env";
 import { accountIdForCustomer } from "@/features/billing/stripe-customer";
+import { reconcileAccountBilling } from "@/features/billing/reconcile";
+import { provisionAccount } from "@/features/provisioning/provision";
 import {
   syncSubscription,
   deleteSubscription,
@@ -43,6 +45,24 @@ export async function POST(req: NextRequest) {
 
   try {
     switch (event.type) {
+      // Paiement finalisé sur le site vitrine → provisionner un espace + essai
+      // si le client n'en a pas déjà un, puis synchroniser son abonnement.
+      case "checkout.session.completed": {
+        const session = event.data.object as Stripe.Checkout.Session;
+        const customerId = typeof session.customer === "string" ? session.customer : null;
+        const email = session.customer_details?.email ?? session.customer_email ?? null;
+        const linked = customerId ? await accountIdForCustomer(customerId) : null;
+        if (!linked && email) {
+          const { accountId } = await provisionAccount({
+            email,
+            agencyName: session.customer_details?.name ?? undefined,
+            stripeCustomerId: customerId ?? undefined,
+          });
+          // L'abonnement a pu arriver avant le provisioning → on réconcilie.
+          await reconcileAccountBilling(accountId);
+        }
+        break;
+      }
       case "customer.subscription.created":
       case "customer.subscription.updated": {
         const sub = event.data.object as Stripe.Subscription;

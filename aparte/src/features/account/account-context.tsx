@@ -5,7 +5,14 @@ import type { CurrentUser } from "@/features/auth/current-user";
 import type { Plan, AccountStatus, Role } from "@/types/domain";
 
 interface AccountState {
-  profile: { id: string; fullName: string; email: string; phone: string | null; role: Role };
+  profile: {
+    id: string;
+    fullName: string;
+    email: string;
+    phone: string | null;
+    role: Role;
+    onboardingCompleted: boolean;
+  };
   account: {
     id: string;
     agencyName: string;
@@ -13,6 +20,7 @@ interface AccountState {
     accent: [string, string];
     plan: Plan;
     status: AccountStatus;
+    trialEndsAt: string | null;
   };
 }
 
@@ -43,6 +51,7 @@ export function AccountProvider({
       email: initialUser.email,
       phone: initialUser.phone,
       role: initialUser.role,
+      onboardingCompleted: initialUser.onboardingCompleted,
     },
     account: initialUser.account,
   });

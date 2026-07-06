@@ -47,9 +47,9 @@ values (
 );
 
 -- ─── Profil (lie l'utilisateur à l'espace) ─────────────────────────────────
-insert into profiles (id, account_id, full_name, email, phone, role)
+insert into profiles (id, account_id, full_name, email, phone, role, onboarding_completed)
 values ('22222222-2222-2222-2222-222222222222', '11111111-1111-1111-1111-111111111111',
-        'Camille Mercier', 'camille@agence.fr', '06 24 11 88 30', 'client');
+        'Camille Mercier', 'camille@agence.fr', '06 24 11 88 30', 'client', true);
 
 -- ─── Admin SaaS (console de gestion des espaces) ───────────────────────────
 insert into accounts (id, agency_name, brand_name, accent, plan, status, email)
@@ -79,9 +79,9 @@ values (
   'email', now(), now(), now()
 );
 
-insert into profiles (id, account_id, full_name, email, phone, role)
+insert into profiles (id, account_id, full_name, email, phone, role, onboarding_completed)
 values ('44444444-4444-4444-4444-444444444444', '33333333-3333-3333-3333-333333333333',
-        'Admin Aparté', 'admin@aparte.fr', null, 'admin');
+        'Admin Aparté', 'admin@aparte.fr', null, 'admin', true);
 
 -- Espaces clients gérés par l'admin (sans utilisateur associé pour la démo).
 insert into accounts (agency_name, brand_name, accent, plan, status, email) values

@@ -9,6 +9,7 @@ import { useAccount } from "./account-context";
 import { useInvoices, usePaymentMethod, useUpdateProfile, useUpdateAccount } from "./hooks";
 import { useSubscription } from "@/features/billing/hooks";
 import { startCheckout, openBillingPortal } from "@/features/billing/actions";
+import { useOnboardingStore } from "@/features/onboarding/onboarding-store";
 import { signOut } from "@/features/auth/actions";
 import { Overlay, Avatar, Button, SubmitButton, SubmitTextButton, Field, Input, EmptyState } from "@/components/ui";
 import { cn, initials } from "@/lib/utils";
@@ -137,10 +138,29 @@ function ProfilTab() {
           <Input value={account.agencyName} readOnly />
         </Field>
       </div>
-      <Button className="mt-5" onClick={onSave} disabled={update.isPending}>
-        {update.isPending ? "Enregistrement…" : "Enregistrer"}
-      </Button>
+      <div className="mt-5 flex items-center gap-3">
+        <Button onClick={onSave} disabled={update.isPending}>
+          {update.isPending ? "Enregistrement…" : "Enregistrer"}
+        </Button>
+        <ReplayGuideButton />
+      </div>
     </div>
+  );
+}
+
+function ReplayGuideButton() {
+  const startTour = useOnboardingStore((s) => s.start);
+  const closeAccount = useUIStore((s) => s.closeAccount);
+  return (
+    <button
+      onClick={() => {
+        closeAccount();
+        setTimeout(() => startTour(), 200);
+      }}
+      className="text-[12.5px] font-bold text-accent"
+    >
+      Revoir le guide d'accueil
+    </button>
   );
 }
 

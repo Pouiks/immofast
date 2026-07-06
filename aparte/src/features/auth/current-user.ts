@@ -10,6 +10,7 @@ export interface CurrentAccount {
   accent: [string, string];
   plan: Plan;
   status: AccountStatus;
+  trialEndsAt: string | null;
 }
 
 export interface CurrentUser {
@@ -18,6 +19,7 @@ export interface CurrentUser {
   email: string;
   phone: string | null;
   role: Role;
+  onboardingCompleted: boolean;
   account: CurrentAccount;
 }
 
@@ -32,6 +34,7 @@ const DEMO_USER: CurrentUser = {
   email: "camille@agence.fr",
   phone: "06 24 11 88 30",
   role: "client",
+  onboardingCompleted: true,
   account: {
     id: "demo-account",
     agencyName: "Aparté",
@@ -39,6 +42,7 @@ const DEMO_USER: CurrentUser = {
     accent: ["#2563eb", "#38bdf8"],
     plan: "mensuel",
     status: "active",
+    trialEndsAt: null,
   },
 };
 
@@ -75,6 +79,7 @@ export const getCurrentUser = cache(async (): Promise<CurrentUser | null> => {
     email: profile.email,
     phone: profile.phone,
     role: profile.role,
+    onboardingCompleted: profile.onboarding_completed,
     account: {
       id: account.id,
       agencyName: account.agency_name,
@@ -82,6 +87,7 @@ export const getCurrentUser = cache(async (): Promise<CurrentUser | null> => {
       accent: (account.accent as [string, string]) ?? ["#2563eb", "#38bdf8"],
       plan: account.plan,
       status: account.status,
+      trialEndsAt: account.trial_ends_at,
     },
   };
 });

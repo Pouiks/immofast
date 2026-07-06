@@ -34,7 +34,7 @@ export function Sidebar({ goalDone = 3, goalTarget = 5 }: { goalDone?: number; g
       </div>
 
       {/* Navigation */}
-      <nav className="flex flex-col gap-1">
+      <nav data-tour="sidebar-nav" className="flex flex-col gap-1">
         {CRM_NAV.map((item) => (
           <NavItem key={item.href} item={item} active={pathname.startsWith(item.href)} />
         ))}
@@ -61,6 +61,7 @@ export function Sidebar({ goalDone = 3, goalTarget = 5 }: { goalDone?: number; g
 
       {/* Profil */}
       <button
+        data-tour="sidebar-profile"
         onClick={openAccount}
         className="-mx-1.5 flex items-center gap-2.5 rounded-[10px] border-t border-line px-1.5 py-2.5 text-left hover:bg-hover"
       >
@@ -83,6 +84,7 @@ function NavItem({ item, active }: { item: NavItemConfig; active: boolean }) {
   return (
     <Link
       href={item.href}
+      data-tour={item.href === "/prospects" ? "nav-prospects" : undefined}
       className={cn(
         "flex items-center gap-2.5 rounded-[11px] px-3 py-[11px] font-bold transition",
         active ? "bg-accent text-white" : "text-muted hover:bg-app",

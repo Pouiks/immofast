@@ -6,6 +6,8 @@ import { Sidebar } from "@/components/shell/sidebar";
 import { Topbar } from "@/components/shell/topbar";
 import { AccountPanel } from "@/features/account/account-panel";
 import { Overlays } from "@/components/shell/overlays";
+import { OnboardingLauncher } from "@/features/onboarding/onboarding-launcher";
+import { TrialBanner } from "@/features/billing/trial-banner";
 
 /**
  * Shell CRM (client & invité). Garde de rôle :
@@ -24,11 +26,13 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           <Sidebar />
           <div className="flex min-w-0 flex-1 flex-col">
             <Topbar />
+            <TrialBanner />
             <main className="flex-1 overflow-y-auto px-7 py-[26px]">{children}</main>
           </div>
         </div>
         <AccountPanel />
         <Overlays />
+        <OnboardingLauncher />
       </AccountProvider>
     </ThemeProvider>
   );
