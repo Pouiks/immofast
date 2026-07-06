@@ -40,7 +40,9 @@ export async function updateSession(request: NextRequest) {
 
   const { pathname } = request.nextUrl;
   const isAuthRoute = pathname.startsWith("/login");
-  const isPublicAsset = pathname === "/" || pathname.startsWith("/site");
+  // Les webhooks Stripe s'authentifient par signature, pas par session → publics.
+  const isWebhook = pathname.startsWith("/api/stripe");
+  const isPublicAsset = pathname === "/" || pathname.startsWith("/site") || isWebhook;
 
   if (!user && !isAuthRoute && !isPublicAsset) {
     const url = request.nextUrl.clone();
