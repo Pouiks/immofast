@@ -1,17 +1,21 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { X } from "lucide-react";
+import { useState, useEffect, useTransition, type FormEvent } from "react";
+import { X, Trash2 } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
+import { useQueryClient } from "@tanstack/react-query";
 import { useUIStore } from "@/stores/ui-store";
 import { useAccount } from "./account-context";
 import { useInvoices, usePaymentMethod, useUpdateProfile, useUpdateAccount } from "./hooks";
 import { useSubscription } from "@/features/billing/hooks";
 import { startCheckout, openBillingPortal } from "@/features/billing/actions";
 import { useOnboardingStore } from "@/features/onboarding/onboarding-store";
+import { useMembers } from "@/features/members/hooks";
+import { inviteMember, removeMember } from "@/features/members/actions";
+import { SEAT_LIMIT } from "@/features/members/config";
 import { signOut } from "@/features/auth/actions";
-import { Overlay, Avatar, Button, SubmitButton, SubmitTextButton, Field, Input, EmptyState } from "@/components/ui";
+import { Overlay, Avatar, Badge, Button, SubmitButton, SubmitTextButton, Field, Input, EmptyState } from "@/components/ui";
 import { cn, initials } from "@/lib/utils";
 import { ROLE_LABELS } from "@/types/domain";
 
@@ -24,13 +28,14 @@ const SUB_STATUS: Record<string, { label: string; tone: "success" | "warning" | 
   incomplete: { label: "Incomplet", tone: "warning" },
 };
 
-type Tab = "profil" | "abonnement" | "facturation" | "marque";
+type Tab = "profil" | "abonnement" | "facturation" | "marque" | "membres";
 
 const TAB_TITLES: Record<Tab, string> = {
   profil: "Profil",
   abonnement: "Abonnement",
   facturation: "Facturation",
   marque: "Marque blanche",
+  membres: "Collaborateurs",
 };
 
 /**
@@ -49,7 +54,9 @@ export function AccountPanel() {
 
   if (!accountOpen) return null;
   const canBilling = profile.role === "client";
-  const tabs: Tab[] = canBilling ? ["profil", "abonnement", "facturation", "marque"] : ["profil"];
+  const tabs: Tab[] = canBilling
+    ? ["profil", "abonnement", "facturation", "membres", "marque"]
+    : ["profil"];
 
   return (
     <Overlay onClose={closeAccount} z={70}>
@@ -104,6 +111,7 @@ export function AccountPanel() {
               {tab === "profil" && <ProfilTab />}
               {tab === "abonnement" && <AbonnementTab />}
               {tab === "facturation" && <FacturationTab />}
+              {tab === "membres" && <MembresTab />}
               {tab === "marque" && <MarqueTab />}
             </div>
           </div>
@@ -297,6 +305,116 @@ function FacturationTab() {
           </div>
         ))
       )}
+    </div>
+  );
+}
+
+function MembresTab() {
+  const { data: members = [], isLoading } = useMembers();
+  const qc = useQueryClient();
+  const [pending, startTransition] = useTransition();
+  const [error, setError] = useState<string | null>(null);
+  const [link, setLink] = useState<string | null>(null);
+
+  const seatsUsed = members.filter((m) => m.role === "invite").length;
+  const full = seatsUsed >= SEAT_LIMIT;
+
+  const onInvite = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setError(null);
+    setLink(null);
+    const form = e.currentTarget;
+    startTransition(async () => {
+      const res = await inviteMember(new FormData(form));
+      if (res.error) setError(res.error);
+      else {
+        setLink(res.actionLink ?? null);
+        qc.invalidateQueries({ queryKey: ["members"] });
+        form.reset();
+      }
+    });
+  };
+
+  const onRemove = (id: string) => {
+    if (!confirm("Retirer ce collaborateur de la licence ?")) return;
+    startTransition(async () => {
+      await removeMember(id);
+      qc.invalidateQueries({ queryKey: ["members"] });
+    });
+  };
+
+  return (
+    <div>
+      <p className="mb-4 text-[12.5px] font-semibold text-muted">
+        Invitez jusqu'à {SEAT_LIMIT} collaborateurs sur votre licence. Ils accèdent au CRM
+        (prospects, biens, agenda) mais pas à la facturation ni à l'administration.
+      </p>
+      <div className="mb-2 text-[11px] font-bold uppercase tracking-wider text-ghost">
+        {seatsUsed} / {SEAT_LIMIT} place(s) collaborateur utilisée(s)
+      </div>
+
+      {isLoading ? (
+        <EmptyState>Chargement…</EmptyState>
+      ) : (
+        <div className="flex flex-col gap-2">
+          {members.map((m) => (
+            <div key={m.id} className="flex items-center gap-3 rounded-xl bg-app px-3.5 py-2.5">
+              <Avatar name={m.full_name} size={34} radius={10} />
+              <div className="min-w-0 flex-1">
+                <div className="truncate text-[13px] font-bold">{m.full_name}</div>
+                <div className="truncate text-[11px] font-semibold text-faint">{m.email}</div>
+              </div>
+              <Badge tone={m.role === "client" ? "accent" : "neutral"}>
+                {m.role === "client" ? "Titulaire" : "Invité"}
+              </Badge>
+              {m.role === "invite" && (
+                <button
+                  onClick={() => onRemove(m.id)}
+                  disabled={pending}
+                  className="flex size-7 items-center justify-center rounded-[8px] disabled:opacity-50"
+                  aria-label="Retirer le collaborateur"
+                >
+                  <Trash2 size={15} strokeWidth={2.2} className="text-[#c4667a]" />
+                </button>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+
+      <form onSubmit={onInvite} className="mt-5 border-t border-line pt-4">
+        <div className="mb-2.5 text-[11px] font-bold uppercase tracking-wider text-ghost">
+          Inviter un collaborateur
+        </div>
+        <div className="flex gap-2.5">
+          <Field label="Email" className="flex-1">
+            <Input name="email" type="email" placeholder="collaborateur@agence.fr" disabled={full} />
+          </Field>
+          <Field label="Nom (optionnel)" className="flex-1">
+            <Input name="fullName" placeholder="Prénom Nom" disabled={full} />
+          </Field>
+        </div>
+        <Button type="submit" className="mt-3" disabled={full || pending}>
+          {pending ? "Invitation…" : "Inviter"}
+        </Button>
+        {full && (
+          <p className="mt-2 text-[11.5px] font-semibold text-warning">
+            Limite de {SEAT_LIMIT} collaborateurs atteinte — augmentez votre offre pour plus de places.
+          </p>
+        )}
+        {error && <p className="mt-2 text-xs font-bold text-danger">{error}</p>}
+        {link && (
+          <div className="mt-3 rounded-[10px] bg-success-bg p-3">
+            <div className="text-[11.5px] font-bold text-success">Invitation créée ✓</div>
+            <div className="mt-1 text-[11px] font-semibold text-muted">
+              Transmettez ce lien au collaborateur pour définir son mot de passe :
+            </div>
+            <div className="mt-1 break-all rounded-[8px] bg-surface p-2 text-[10.5px] font-medium">
+              {link}
+            </div>
+          </div>
+        )}
+      </form>
     </div>
   );
 }

@@ -51,7 +51,7 @@ interface UIState {
   closeAccount: () => void;
 }
 
-export type AccountTab = "profil" | "abonnement" | "facturation" | "marque";
+export type AccountTab = "profil" | "abonnement" | "facturation" | "marque" | "membres";
 
 export const useUIStore = create<UIState>((set) => ({
   selectedProspectId: null,

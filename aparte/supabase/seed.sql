@@ -9,12 +9,18 @@
 delete from auth.users where id in (
   '22222222-2222-2222-2222-222222222222',
   '44444444-4444-4444-4444-444444444444',
-  '66666666-6666-6666-6666-666666666666'
+  '66666666-6666-6666-6666-666666666666',
+  '88888888-8888-8888-8888-888888888888',
+  'a9999999-9999-9999-9999-999999999999',
+  'cccccccc-cccc-cccc-cccc-cccccccccccc'
 );
 delete from accounts where id in (
   '11111111-1111-1111-1111-111111111111',
   '33333333-3333-3333-3333-333333333333',
-  '55555555-5555-5555-5555-555555555555'
+  '55555555-5555-5555-5555-555555555555',
+  '77777777-7777-7777-7777-777777777777',
+  '99999999-9999-9999-9999-999999999999',
+  'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb'
 );
 -- Quelques espaces clients supplémentaires (gérés depuis la console admin).
 delete from accounts where email in ('contact@horizon-immo.fr', 'hello@studionord.fr', 'admin@prestige.fr');
@@ -113,6 +119,39 @@ values (gen_random_uuid(), '66666666-6666-6666-6666-666666666666', '66666666-666
 insert into profiles (id, account_id, full_name, email, phone, role, onboarding_completed)
 values ('66666666-6666-6666-6666-666666666666', '55555555-5555-5555-5555-555555555555',
         'Espace Verrouillé', 'locked@aparte.fr', null, 'client', true);
+
+-- ─── Fixtures E2E : sandbox (abonné, accès garanti) + essai en cours ───────
+insert into accounts (id, agency_name, brand_name, accent, plan, status, email)
+values ('77777777-7777-7777-7777-777777777777', 'Sandbox Test', 'Sandbox Test',
+        array['#2563eb','#38bdf8'], 'mensuel', 'active', 'sandbox@aparte.fr');
+insert into auth.users (instance_id,id,aud,role,email,encrypted_password,email_confirmed_at,created_at,updated_at,raw_app_meta_data,raw_user_meta_data,confirmation_token,recovery_token,email_change_token_new,email_change)
+values ('00000000-0000-0000-0000-000000000000','88888888-8888-8888-8888-888888888888','authenticated','authenticated','sandbox@aparte.fr',crypt('demodemo',gen_salt('bf')),now(),now(),now(),'{"provider":"email","providers":["email"]}','{"full_name":"Sandbox Test"}','','','','');
+insert into auth.identities (id,user_id,provider_id,identity_data,provider,last_sign_in_at,created_at,updated_at)
+values (gen_random_uuid(),'88888888-8888-8888-8888-888888888888','88888888-8888-8888-8888-888888888888','{"sub":"88888888-8888-8888-8888-888888888888","email":"sandbox@aparte.fr"}','email',now(),now(),now());
+insert into profiles (id,account_id,full_name,email,role,onboarding_completed)
+values ('88888888-8888-8888-8888-888888888888','77777777-7777-7777-7777-777777777777','Sandbox Test','sandbox@aparte.fr','client',true);
+insert into subscriptions (account_id,plan,status,current_period_end,cancel_at_period_end,updated_at)
+values ('77777777-7777-7777-7777-777777777777','mensuel','active','2099-01-01T00:00:00Z',false,now());
+
+insert into accounts (id, agency_name, brand_name, accent, plan, status, email, trial_ends_at)
+values ('99999999-9999-9999-9999-999999999999', 'Espace Essai', 'Espace Essai',
+        array['#2563eb','#38bdf8'], 'mensuel', 'active', 'trial@aparte.fr', '2099-01-01T00:00:00Z');
+insert into auth.users (instance_id,id,aud,role,email,encrypted_password,email_confirmed_at,created_at,updated_at,raw_app_meta_data,raw_user_meta_data,confirmation_token,recovery_token,email_change_token_new,email_change)
+values ('00000000-0000-0000-0000-000000000000','a9999999-9999-9999-9999-999999999999','authenticated','authenticated','trial@aparte.fr',crypt('demodemo',gen_salt('bf')),now(),now(),now(),'{"provider":"email","providers":["email"]}','{"full_name":"Espace Essai"}','','','','');
+insert into auth.identities (id,user_id,provider_id,identity_data,provider,last_sign_in_at,created_at,updated_at)
+values (gen_random_uuid(),'a9999999-9999-9999-9999-999999999999','a9999999-9999-9999-9999-999999999999','{"sub":"a9999999-9999-9999-9999-999999999999","email":"trial@aparte.fr"}','email',now(),now(),now());
+insert into profiles (id,account_id,full_name,email,role,onboarding_completed)
+values ('a9999999-9999-9999-9999-999999999999','99999999-9999-9999-9999-999999999999','Espace Essai','trial@aparte.fr','client',true);
+
+-- Upgrade : l'abonnement (mensuel) est créé par le test via l'API Stripe.
+insert into accounts (id, agency_name, brand_name, accent, plan, status, email)
+values ('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb','Espace Upgrade','Espace Upgrade',array['#2563eb','#38bdf8'],'mensuel','active','upgrade@aparte.fr');
+insert into auth.users (instance_id,id,aud,role,email,encrypted_password,email_confirmed_at,created_at,updated_at,raw_app_meta_data,raw_user_meta_data,confirmation_token,recovery_token,email_change_token_new,email_change)
+values ('00000000-0000-0000-0000-000000000000','cccccccc-cccc-cccc-cccc-cccccccccccc','authenticated','authenticated','upgrade@aparte.fr',crypt('demodemo',gen_salt('bf')),now(),now(),now(),'{"provider":"email","providers":["email"]}','{"full_name":"Espace Upgrade"}','','','','');
+insert into auth.identities (id,user_id,provider_id,identity_data,provider,last_sign_in_at,created_at,updated_at)
+values (gen_random_uuid(),'cccccccc-cccc-cccc-cccc-cccccccccccc','cccccccc-cccc-cccc-cccc-cccccccccccc','{"sub":"cccccccc-cccc-cccc-cccc-cccccccccccc","email":"upgrade@aparte.fr"}','email',now(),now(),now());
+insert into profiles (id,account_id,full_name,email,role,onboarding_completed)
+values ('cccccccc-cccc-cccc-cccc-cccccccccccc','bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb','Espace Upgrade','upgrade@aparte.fr','client',true);
 
 -- ─── Prospects ─────────────────────────────────────────────────────────────
 insert into prospects (id, account_id, full_name, phone, email, address, budget_amount, search_label, stage) values
